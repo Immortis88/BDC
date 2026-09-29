@@ -8,14 +8,15 @@
 
 
 import { FAQ_DATA, getFaqsByCategory, getHomeFaqs } from '../data/faqData.js';
+import { backendUrl, resolveMediaUrls } from './backend.js';
 
 async function fetchJson(path, options = {}) {
   try {
-    const res = await fetch(path, {
+    const res = await fetch(backendUrl(path), {
       headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       ...options
     });
-    const json = await res.json().catch(() => null);
+    const json = resolveMediaUrls(await res.json().catch(() => null));
     return { ok: res.ok, status: res.status, ...(json || {}) };
   } catch (err) {
     return { ok: false, message: err.message };

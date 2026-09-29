@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { backendUrl } from '../../services/backend.js';
 
 const AdminAuthContext = createContext(null);
 const TOKEN_KEY = 'bdc_admin_token_v1';
@@ -7,7 +8,7 @@ const USER_KEY  = 'bdc_admin_user_v1';
 // ─── API helper ───────────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
   const token = localStorage.getItem(TOKEN_KEY);
-  const res = await fetch(path, {
+  const res = await fetch(backendUrl(path), {
     ...options,
     headers: {
       'Content-Type': 'application/json',

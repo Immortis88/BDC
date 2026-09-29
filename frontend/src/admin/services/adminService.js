@@ -3,6 +3,8 @@
  * Directly interacts with the Express / MySQL backend endpoints.
  */
 
+import { backendUrl, resolveMediaUrls } from '../../services/backend.js';
+
 const TOKEN_KEY = 'bdc_admin_token_v1';
 
 async function request(path, options = {}) {
@@ -18,7 +20,7 @@ async function request(path, options = {}) {
     headers
   };
 
-  const res = await fetch(path, config);
+  const res = await fetch(backendUrl(path), config);
 
   if (res.status === 401) {
     // Session expired or invalid
@@ -34,7 +36,7 @@ async function request(path, options = {}) {
     return { ok: res.ok, success: res.ok, blob };
   }
 
-  const json = await res.json().catch(() => ({ ok: false, message: 'Invalid response from server.' }));
+  const json = resolveMediaUrls(await res.json().catch(() => ({ ok: false, message: 'Invalid response from server.' })));
   return {
     ...json,
     success: json.success ?? json.ok ?? res.ok
@@ -519,7 +521,7 @@ export const adminService = {
     if (albumId) formData.append('album_id', albumId);
     if (area) formData.append('area', area);
 
-    const res = await fetch('/api/upload', {
+    const res = await fetch(backendUrl('/api/upload'), {
       method: 'POST',
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -527,7 +529,7 @@ export const adminService = {
       body: formData
     });
 
-    const json = await res.json().catch(() => ({ ok: false, message: 'Upload failed.' }));
+    const json = resolveMediaUrls(await res.json().catch(() => ({ ok: false, message: 'Upload failed.' })));
     const success = Boolean(json.success ?? json.ok ?? res.ok);
     const data = json.data || {};
 
@@ -535,7 +537,7 @@ export const adminService = {
       ...json,
       success,
       data,
-      url: data.url || json.url || (data.relative_path ? `/media/${data.relative_path}` : null),
+      url: data.url || json.url || (data.relative_path ? backendUrl(`/media/${data.relative_path}`) : null),
       asset_id: data.asset_id || json.asset_id || null,
       relative_path: data.relative_path || json.relative_path || null
     };
