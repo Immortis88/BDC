@@ -1,0 +1,34 @@
+[
+  {
+    "key": "bharat-dhakad",
+    "name": "Bharat Dhakad",
+    "role": "",
+    "phone": "9057220845",
+    "showPhonePublicly": true,
+    "photoPath": "teams/bharat-dhakad.jpg"
+  },
+  {
+    "key": "aryan-sharma",
+    "name": "Aryan Sharma",
+    "role": "",
+    "phone": "8764101496",
+    "showPhonePublicly": true,
+    "photoPath": "teams/aryan-sharma.jpg"
+  },
+  {
+    "key": "rahul-saini",
+    "name": "Rahul Saini",
+    "role": "",
+    "phone": "9588924511",
+    "showPhonePublicly": true,
+    "photoPath": "teams/rahul-saini.jpg"
+  },
+  {
+    "key": "chetan-yadav",
+    "name": "Chetan Yadav",
+    "role": "",
+    "phone": "9871338321",
+    "showPhonePublicly": true,
+    "photoPath": "teams/chetan-yadav.jpg"
+  }
+]

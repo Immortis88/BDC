@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base */
+  --color-bg: #FCF3E9;           /* page background (cream) */
+  --color-surface: #FFFFFF;      /* plain white card surface */
+  --color-ink: #1A1F2E;          /* body text — near-black navy, NOT gray */
+  --color-ink-muted: #5B5F6B;    /* secondary text (captions, meta) */
+
+  /* Brand */
+  --color-maroon: #7C1D24;       /* primary — banners, primary buttons, active states */
+  --color-maroon-dark: #5C1519;  /* hover state for maroon buttons */
+  --color-red: #D62839;          /* accent — logo droplet, small highlights only */
+  --color-navy: #0F1B3D;         /* footer, dark sections */
+
+  /* Supporting */
+  --color-blush: #F8DEDA;        /* ONE of several card backgrounds */
+  --color-border: #E8DFD3;       /* hairline borders on cream */
+  --color-border-dark: rgba(255, 255, 255, 0.12); /* borders on navy/maroon */
+
+  /* Typography */
+  --font-display: "Lora", "Georgia", serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 48px;
+  --space-xl: 80px;
+  --space-2xl: 120px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Card System */
+.card-feature {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-feature:hover {
+  box-shadow: 0 8px 24px rgba(124, 29, 36, 0.08);
+  transform: translateY(-2px);
+}
+
+.card-highlight {
+  background: var(--color-blush);
+  border-radius: 16px;
+  border: none;
+}
+
+.card-stat {
+  background: var(--color-maroon);
+  color: #FFFFFF;
+  border-radius: 16px;
+}
+.card-stat .stat-number {
+  color: #FFFFFF;
+  font-family: var(--font-display);
+}
+.card-stat .stat-icon {
+  color: var(--color-blush);
+}
+
+.logo-box {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.logo-box:hover {
+  border-color: var(--color-maroon);
+  box-shadow: 0 4px 12px rgba(124, 29, 36, 0.06);
+}
+
+.gallery-placeholder {
+  background: #F5EDE3;
+  border-radius: 12px;
+  transition: opacity 0.2s ease;
+}
+.gallery-placeholder:hover {
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+/* Button System */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-maroon);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.btn-primary:hover {
+  background: var(--color-maroon-dark);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary:focus-visible {
+  outline: 3px solid rgba(124, 29, 36, 0.35);
+  outline-offset: 2px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1.5px solid var(--color-ink);
+  color: var(--color-ink);
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.btn-secondary:hover {
+  background: rgba(26, 31, 46, 0.04);
+}
+.btn-secondary:focus-visible {
+  outline: 3px solid rgba(26, 31, 46, 0.35);
+  outline-offset: 2px;
+}
+
+/* Scroll-responsive floating navbar styling */
+.navbar-scrolled {
+  background-color: rgba(250, 244, 235, 0.92);
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(152, 27, 36, 0.16);
+  box-shadow: 0 8px 24px rgba(152, 27, 36, 0.14), 0 2px 6px rgba(152, 27, 36, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-top {
+  background-color: #FAF4EB;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-bottom-color: #EAD7CF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header,
+  header * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Deliberate animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-headline {
+  animation: fadeUp 0.4s ease-out;
+}
+
+.hero-photo {
+  animation: fadeUp 0.4s ease-out 0.15s backwards;
+}
+
+/* Accessibility: Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hero Carousel Custom Pagination */
+.hero-carousel-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-carousel-pagination .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  margin: 0 3px !important;
+  cursor: pointer;
+}
+
+.hero-carousel-pagination .swiper-pagination-bullet-active {
+  width: 22px;
+  height: 6px;
+  background-color: #ffffff;
+  border-radius: 9999px;
+}
+
+/* Fade-in-up animation, used for hero content and section reveals */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s ease-out both;
+}
+
+/* Gallery Carousel Pause/Play Control Placement & Device Adaptability */
+.gallery-pause-btn-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.25s ease, transform 0.25s ease, max-height 0.25s ease, margin 0.25s ease;
+}
+
+/* On desktop with a mouse, hide visually during normal viewing */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .gallery-pause-btn-wrap {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    max-height: 0;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+  }
+
+  /* Reveal when keyboard focus enters carousel or button */
+  .gallery-carousel-root:focus-within .gallery-pause-btn-wrap,
+  .gallery-carousel-root:has(:focus-visible) .gallery-pause-btn-wrap,
+  .gallery-pause-btn-wrap:focus-within,
+  .gallery-pause-btn-wrap.is-keyboard-revealed {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    max-height: 60px;
+    margin-top: 0.875rem !important;
+    overflow: visible;
+  }
+}
+
+/* Partners Logo Strip Pause/Play Control Placement & Device Adaptability */
+.partners-pause-btn-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.25s ease, transform 0.25s ease, max-height 0.25s ease, margin 0.25s ease;
+}
+
+/* On desktop with a mouse, hide visually during normal viewing */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .partners-pause-btn-wrap {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    max-height: 0;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+  }
+
+  /* Reveal when keyboard focus enters partners strip or button */
+  .partners-strip-root:focus-within .partners-pause-btn-wrap,
+  .partners-strip-root:has(:focus-visible) .partners-pause-btn-wrap,
+  .partners-pause-btn-wrap:focus-within,
+  .partners-pause-btn-wrap.is-keyboard-revealed {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    max-height: 60px;
+    margin-top: 0.875rem !important;
+    overflow: visible;
+  }
+}
