@@ -82,7 +82,19 @@ app.use((err, _req, res, _next) => {
     });
   } catch (err) {
     console.error('[startup] Failed to connect to database:', err.message);
-    console.error('→ Check DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME in backend/.env');
+    // Network AggregateErrors can have an empty message; retain their individual codes.
+    // Log only diagnostic fields, never the connection configuration or password.
+    for (const cause of [err, ...(Array.isArray(err.errors) ? err.errors : [])]) {
+      console.error('[startup] Database error details:', JSON.stringify({
+        name: cause.name,
+        code: cause.code,
+        errno: cause.errno,
+        syscall: cause.syscall,
+        address: cause.address,
+        port: cause.port
+      }));
+    }
+    console.error('→ Check DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME in App Env (or backend/.env locally)');
     process.exit(1);
   }
 })();
