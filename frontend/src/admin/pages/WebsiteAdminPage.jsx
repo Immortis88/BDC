@@ -39,6 +39,7 @@ import LoadingState from '../components/LoadingState.jsx';
 import HomePage from '../../pages/HomePage.jsx';
 import AboutPage from '../../pages/AboutPage.jsx';
 import FaqSectionImage, { FAQ_IMAGE_SLOTS } from '../../components/ui/FaqSectionImage.jsx';
+import { HeroPhotosEditor, LeadershipEditor } from '../components/HomepagePhotoEditors.jsx';
 import ImagePickerModal, { ImagePickerField } from '../components/ImagePickerModal.jsx';
 import GalleryAdminManager from '../components/GalleryAdminManager.jsx';
 import { normalizeSocialSettings } from '../../utils/socialLinks.js';
@@ -144,8 +145,8 @@ function normalizeHomepagePayload(form) {
       ctaUrl: form.hero.secondaryCtaUrl || '/about',
       slides: (form.hero.slides || []).map(s => ({
         ...s,
-        imageUrl: s.imageUrl || s.image_url,
-        image_url: s.image_url || s.imageUrl,
+        imageUrl: s.imageUrl ?? s.image_url,
+        image_url: s.imageUrl ?? s.image_url,
         focalPosition: s.focalPosition || 'right 20%'
       }))
     },
@@ -201,8 +202,8 @@ function mapHomepageDraft(payload, prev) {
       secondaryCtaUrl: payload.hero?.secondaryCtaUrl || payload.hero?.ctaUrl || prev.hero.secondaryCtaUrl,
       slides: (payload.hero?.slides || prev.hero.slides || []).map(s => ({
         ...s,
-        image_url: s.image_url || s.imageUrl,
-        imageUrl: s.imageUrl || s.image_url,
+        image_url: s.imageUrl ?? s.image_url,
+        imageUrl: s.imageUrl ?? s.image_url,
         focalPosition: s.focalPosition || 'right 20%'
       }))
     },
@@ -218,7 +219,7 @@ function mapHomepageDraft(payload, prev) {
       bloodUnits: toSafeNumber(payload.impact?.bloodUnits, prev.impact?.bloodUnits ?? 0),
       donorsCount: toSafeNumber(payload.impact?.donorsCount, prev.impact?.donorsCount ?? 0),
       campsCount: toSafeNumber(payload.impact?.campsCount, prev.impact?.campsCount ?? 0),
-      bannerUrl: payload.impact?.bannerUrl || payload.impact?.backgroundUrl || prev.impact?.bannerUrl || ''
+      bannerUrl: payload.impact?.bannerUrl ?? payload.impact?.backgroundUrl ?? prev.impact?.bannerUrl ?? ''
     },
     inspiration: {
       ...prev.inspiration,
@@ -1218,71 +1219,7 @@ export default function WebsiteAdminPage() {
               </div>
             </div>
 
-            {/* Hero Background Slide Asset */}
-            <div className="pt-2 space-y-3">
-              <ImagePickerField
-                label="Hero Background Photograph"
-                value={homepageForm.hero.slides?.[0]?.image_url || homepageForm.hero.slides?.[0]?.imageUrl || '/assets/A01-home-hero-donor-v2.webp'}
-                onChange={(url, assetId, extra) => {
-                  const newSlides = [...(homepageForm.hero.slides || [])];
-                  const focalPos = extra?.focalPosition || newSlides[0]?.focalPosition || 'right 20%';
-                  if (newSlides.length === 0) {
-                    newSlides.push({ id: 1, image_url: url, imageUrl: url, alt: 'Student donating blood at SKIT Blood Donation Camp', focalPosition: focalPos, order: 1 });
-                  } else {
-                    newSlides[0] = { ...newSlides[0], image_url: url, imageUrl: url, asset_id: assetId, focalPosition: focalPos };
-                  }
-                  setHomepageForm({ ...homepageForm, hero: { ...homepageForm.hero, slides: newSlides } });
-                }}
-                aspectRatio={16 / 9}
-                cropShape="rect"
-                kind="HERO"
-                showFocalPicker={true}
-                initialFocalPosition={homepageForm.hero.slides?.[0]?.focalPosition || 'right 20%'}
-                recommendation="High-resolution landscape 16:9 recommended for hero background banner. Live framing preview simulates desktop and mobile viewports."
-              />
-
-              {/* Hero Banner Focal Position Selector */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Hero Image Framing Focal Position
-                  </label>
-                  <select
-                    value={homepageForm.hero.slides?.[0]?.focalPosition || 'right 20%'}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      const newSlides = [...(homepageForm.hero.slides || [])];
-                      if (newSlides.length === 0) {
-                        newSlides.push({ id: 1, image_url: '/assets/A01-home-hero-donor-v2.webp', imageUrl: '/assets/A01-home-hero-donor-v2.webp', alt: 'Student donating blood at SKIT Blood Donation Camp', focalPosition: val, order: 1 });
-                      } else {
-                        newSlides[0] = { ...newSlides[0], focalPosition: val };
-                      }
-                      setHomepageForm({ ...homepageForm, hero: { ...homepageForm.hero, slides: newSlides } });
-                    }}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600"
-                  >
-                    <option value="right 20%">Right Center (Focus on Donor — Recommended)</option>
-                    <option value="center center">Center Center (Standard)</option>
-                    <option value="center top">Top Center</option>
-                    <option value="center bottom">Bottom Center</option>
-                    <option value="left center">Left Center</option>
-                    <option value="right top">Top Right</option>
-                    <option value="right bottom">Bottom Right</option>
-                  </select>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Controls CSS <code className="bg-slate-200 px-1 py-0.5 rounded text-[10px]">object-position</code> to keep donor faces visible when the hero photo crops on narrower mobile viewports.
-                  </p>
-                </div>
-
-                <div className="space-y-1 text-slate-600 flex flex-col justify-center">
-                  <span className="font-bold text-slate-700">Responsive Viewport Behavior:</span>
-                  <p className="text-[11px] leading-relaxed">
-                    • <strong>Desktop:</strong> Full 16:9 wide aspect ratio with smooth gradient fade.<br />
-                    • <strong>Mobile (390px):</strong> Vertical framing preserves the selected focal anchor so key subjects are never cut off.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <HeroPhotosEditor slides={homepageForm.hero.slides || []} onChange={slides => setHomepageForm(previous => ({ ...previous, hero: { ...previous.hero, slides } }))} />
           </div>
 
           {/* Card 2: About BDC Section (Section 3) */}
@@ -1379,21 +1316,11 @@ export default function WebsiteAdminPage() {
               </div>
             </div>
 
-            <div className="pt-2">
-              <ImagePickerField
-                label="About Section Showcase Image"
-                value={homepageForm.about.imageUrl || '/assets/A01-home-hero-donor-v2.webp'}
-                onChange={(url) => setHomepageForm({
-                  ...homepageForm,
-                  about: { ...homepageForm.about, imageUrl: url }
-                })}
-                aspectRatio={5 / 3}
-                cropShape="rect"
-                kind="HERO"
-                helpText="5:3 landscape photo highlighting volunteers and donors for homepage section 3."
-              />
-            </div>
+            <p className="text-sm text-slate-600">This carousel uses the three photos below the About page hero. Manage them in the About Page tab.</p>
+
           </div>
+
+          <LeadershipEditor value={homepageForm.leadership} onChange={leadership => setHomepageForm(previous => ({ ...previous, leadership }))} />
 
           {/* Card 3: Our Impact Statistics Section (Section 4) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-2xs space-y-5">
@@ -1460,14 +1387,15 @@ export default function WebsiteAdminPage() {
                   })}
                   className="w-28 text-center text-xl font-extrabold text-[#B91C1C] px-2 py-1 rounded-lg border border-slate-300 mx-auto block"
                 />
-                <span className="text-[11px] text-slate-400 mt-1 block">Formatted: {homepageForm.impact.campsCount}+</span>
+                <span className="text-[11px] text-slate-400 mt-1 block">Formatted: {homepageForm.impact.campsCount}</span>
               </div>
             </div>
 
             <div className="pt-2">
               <ImagePickerField
                 label="Impact Photographic Background Banner"
-                value={homepageForm.impact.bannerUrl || '/assets/bdc_impact_slightly_bright_webp.webp'}
+                allowRemove
+                value={homepageForm.impact.bannerUrl ?? '/assets/bdc_impact_slightly_bright_webp.webp'}
                 onChange={(url) => setHomepageForm({
                   ...homepageForm,
                   impact: { ...homepageForm.impact, bannerUrl: url }
@@ -1593,7 +1521,8 @@ export default function WebsiteAdminPage() {
             <div className="pt-2">
               <ImagePickerField
                 label="Inspiration Figure Portrait"
-                value={homepageForm.inspiration.portraitUrl || '/assets/inspiration_swamiji.png'}
+                allowRemove
+                value={homepageForm.inspiration.portraitUrl ?? '/assets/inspiration_swamiji.png'}
                 onChange={(url) => setHomepageForm({
                   ...homepageForm,
                   inspiration: { ...homepageForm.inspiration, portraitUrl: url }
@@ -1761,6 +1690,7 @@ export default function WebsiteAdminPage() {
             <div className="pt-2">
               <ImagePickerField
                 label="Hero Backdrop Photograph (Optional)"
+                allowRemove
                 value={aboutForm.hero?.heroPhotoUrl || ''}
                 onChange={(url) => setAboutForm({
                   ...aboutForm,
@@ -1803,9 +1733,15 @@ export default function WebsiteAdminPage() {
                   <ImagePickerField
                     label={`Showcase Image ${pIdx + 1}`}
                     value={photo.url || ''}
+                    allowRemove
                     onChange={(url) => {
                       const updated = [...(aboutForm.photos || [])];
                       updated[pIdx] = { ...updated[pIdx], url };
+                      setAboutForm({ ...aboutForm, photos: updated });
+                    }}
+                    onRemove={() => {
+                      const updated = [...(aboutForm.photos || [])];
+                      updated[pIdx] = { ...updated[pIdx], url: '' };
                       setAboutForm({ ...aboutForm, photos: updated });
                     }}
                     aspectRatio={4 / 3}

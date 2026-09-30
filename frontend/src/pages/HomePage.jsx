@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Users, User, Calendar, MapPin, Droplet, RefreshCw, Bell } from 'lucide-react';
-import ImagePlaceholder from '../components/common/ImagePlaceholder.jsx';
+import { ArrowRight, User, Calendar, MapPin, Droplet, RefreshCw, Bell } from 'lucide-react';
+import PhotoCarousel from '../components/home/PhotoCarousel.jsx';
+import LeadershipSection from '../components/home/LeadershipSection.jsx';
 import GalleryCarousel from '../components/home/GalleryCarousel.jsx';
 import PartnersLogoStrip from '../components/home/PartnersLogoStrip.jsx';
 import HomeFaqSection from '../components/home/HomeFaqSection.jsx';
@@ -104,8 +105,6 @@ export default function HomePage({
   heroImageUrl, // Preserved for legacy prop compatibility
   heroImageFocalPosition,
   heroImageAlt,
-  aboutImageUrl = null, // Set to URL when original asset is provided
-  aboutImageAlt = 'SKIT blood donation camp volunteers and donor',
   impactBannerUrl = '/assets/bdc_impact_slightly_bright_webp.webp',
   previewData = null
 }) {
@@ -120,9 +119,7 @@ export default function HomePage({
         }]
       : [];
 
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [failedImageUrls, setFailedImageUrls] = useState({});
-  const { heroStat, impactStats, loading } = useImpactData();
+  const { heroStat, impactStats, loading } = useImpactData(previewData?.impact);
   const { data: featuredCamp, isLoading, isError, refetch } = useFeaturedCamp();
 
   const isRegistrationOpen = !isError && !isLoading && featuredCamp?.is_registration_available === true;
@@ -139,7 +136,7 @@ export default function HomePage({
   const [partners, setPartners] = useState([]);
   const [cmsHome, setCmsHome] = useState(previewData);
   const [isCmsLoading, setIsCmsLoading] = useState(!previewData);
-  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
+  const [aboutPhotos, setAboutPhotos] = useState([]);
   const [notices, setNotices] = useState([]);
 
   useEffect(() => {
@@ -167,6 +164,12 @@ export default function HomePage({
           if (mounted) setIsCmsLoading(false);
         });
       }
+
+      api.content.getAbout().then(res => {
+        if (mounted && res?.success) setAboutPhotos((res.data?.photos || []).slice(0, 3).map(photo => ({
+          id: photo.id, imageUrl: photo.url, alt: photo.alt
+        })));
+      }).catch(() => {});
 
       // Load Notices
       api.content.getNotices().then((res) => {
@@ -287,47 +290,12 @@ export default function HomePage({
 
   const cmsSlides = (cmsHome?.hero?.slides || []).map((s, idx) => ({
     id: s.id || `cms-slide-${idx}`,
-    imageUrl: s.imageUrl || s.image_url,
+    imageUrl: s.imageUrl ?? s.image_url,
     focalPosition: s.focalPosition || 'right 20%',
     alt: s.alt || 'Student donating blood at SKIT Blood Donation Camp'
   })).filter(s => Boolean(s.imageUrl));
 
-  // While CMS is loading, do not render the static fallback AI image.
-  // Wait until API data arrives; only fall back if CMS has finished loading with 0 slides.
-  const effectiveSlides = isCmsLoading
-    ? []
-    : (cmsSlides.length > 0 ? cmsSlides : rawSlides);
-
-  // Filter out slides with empty URLs or load failures
-  const validSlides = effectiveSlides.filter(
-    (slide) => Boolean(slide.imageUrl) && !failedImageUrls[slide.imageUrl]
-  );
-
-  const activeIndex = validSlides.length > 0
-    ? (currentSlideIndex < validSlides.length ? currentSlideIndex : 0)
-    : 0;
-
-  const currentSlide = validSlides[activeIndex] || null;
-  const showHeroImage = Boolean(currentSlide?.imageUrl);
-
-  useEffect(() => {
-    setHeroImageLoaded(false);
-  }, [currentSlide?.imageUrl]);
-
-  const handlePrevSlide = () => {
-    if (validSlides.length < 2) return;
-    setCurrentSlideIndex((prev) => (prev === 0 ? validSlides.length - 1 : prev - 1));
-  };
-
-  const handleNextSlide = () => {
-    if (validSlides.length < 2) return;
-    setCurrentSlideIndex((prev) => (prev === validSlides.length - 1 ? 0 : prev + 1));
-  };
-
-  const handleImageError = (url) => {
-    if (!url) return;
-    setFailedImageUrls((prev) => ({ ...prev, [url]: true }));
-  };
+  const effectiveSlides = isCmsLoading ? [] : (Array.isArray(cmsHome?.hero?.slides) ? cmsSlides : rawSlides);
 
   const showTeamSection = !isLoading && featuredCamp?.visibility?.team !== false &&
     Boolean(chiefCoordinator || teamMembers.length > 0);
@@ -361,55 +329,9 @@ export default function HomePage({
 
       {/* ===== Hero Section ===== */}
       <section className="relative bg-[#FAF4EB] pb-6 sm:pb-8 lg:pb-8">
-        {/* Clipped Hero Image Layer (Independent layer ending ~1/3 down into Current Camp card) */}
-        <div
-          className="absolute top-0 left-0 right-0 bottom-[120px] sm:bottom-[125px] lg:bottom-[130px] overflow-hidden pointer-events-none select-none z-0"
-          aria-hidden={!showHeroImage}
-        >
-          {/* Subtle cream skeleton while image is loading */}
-          {(!showHeroImage || !heroImageLoaded) && (
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FAF4EB] via-[#F3ECE2] to-[#FAF4EB] animate-pulse" />
-          )}
-
-          {showHeroImage && (
-            <div className="relative w-full h-[calc(100%+120px)] sm:h-[calc(100%+125px)] lg:h-[calc(100%+130px)]">
-              {/* Admin-Uploaded / Managed Photo (Scale and position preserved) */}
-              <img
-                key={currentSlide.id || currentSlide.imageUrl}
-                src={currentSlide.imageUrl}
-                alt={currentSlide.alt || 'Student donating blood at SKIT Blood Donation Camp'}
-                fetchPriority="high"
-                decoding="async"
-                onLoad={() => setHeroImageLoaded(true)}
-                onError={() => handleImageError(currentSlide.imageUrl)}
-                className={`w-full h-full object-cover transition-opacity duration-700 ease-out ${
-                  heroImageLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{ objectPosition: currentSlide.focalPosition || 'right 20%' }}
-              />
-
-              {/* Single smooth, multi-stop cream overlay from midpoint of Home (42%) to right edge of About (54%) */}
-              <div
-                className="hidden md:block absolute inset-0 pointer-events-none z-10"
-                style={{
-                  background:
-                    'linear-gradient(90deg, #FAF4EB 0%, #FAF4EB 42%, rgba(250, 244, 235, 0.88) 44%, rgba(250, 244, 235, 0.60) 46.5%, rgba(250, 244, 235, 0.30) 49%, rgba(250, 244, 235, 0.10) 51.5%, rgba(250, 244, 235, 0.03) 53%, rgba(250, 244, 235, 0) 54%)'
-                }}
-                aria-hidden="true"
-              />
-
-              {/* Mobile/tablet backdrop fade for text contrast */}
-              <div
-                className="md:hidden absolute inset-0 bg-gradient-to-b from-[#FAF4EB] via-[#FAF4EB]/85 to-transparent pointer-events-none z-10"
-                aria-hidden="true"
-              />
-            </div>
-          )}
-        </div>
-
         {/* Hero Content (Positioned at ~10% left margin on desktop, compact vertical spacing) */}
-        <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-[10%] pt-7 sm:pt-9 lg:pt-11 pb-8 sm:pb-10 lg:pb-10">
-          <div className="max-w-md lg:max-w-[480px] xl:max-w-[520px] animate-fade-in-up">
+        <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-[10%] pt-7 sm:pt-9 lg:pt-11 pb-6 sm:pb-8 grid grid-cols-1 lg:grid-cols-2 items-center gap-6 lg:gap-8">
+          <div className="min-w-0 max-w-md lg:max-w-[480px] xl:max-w-[520px] animate-fade-in-up">
             {/* Category / Institutional tag */}
             <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
               {cmsHome?.hero?.eyebrow || 'SKIT JAIPUR · BLOOD DONATION CAMPAIGN'}
@@ -470,7 +392,7 @@ export default function HomePage({
             {/* Shared Impact Statistic (Synchronized with Our Impact data source) */}
             <div className="flex items-center gap-3.5 text-[#374151]">
               <div className="w-11 h-11 rounded-lg bg-[#FBEAE7] flex items-center justify-center shrink-0" aria-hidden="true">
-                <Users className="w-5.5 h-5.5 text-[#B30E1F]" strokeWidth={2.2} />
+                <Droplet className="w-5.5 h-5.5 text-[#B30E1F]" strokeWidth={2.2} />
               </div>
               <div>
                 <span className="font-bold text-[#031B44] text-lg sm:text-xl block leading-tight">
@@ -482,45 +404,11 @@ export default function HomePage({
               </div>
             </div>
           </div>
+          <PhotoCarousel slides={effectiveSlides} label="Hero" priority />
         </div>
 
-        {/* Current Camp Banner Card with Carousel Controls Positioned Above It */}
+        {/* Current Camp Banner Card */}
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] relative z-20 mt-2 sm:mt-3 lg:mt-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          {/* Carousel Controls (Positioned at photograph's lower-right, above Current Camp card) */}
-          {validSlides.length >= 2 && (
-            <div
-              className="absolute right-4 sm:right-6 md:right-8 lg:right-[6%] bottom-full mb-3 sm:mb-3.5 z-30 flex items-center gap-3 select-none"
-              role="region"
-              aria-label="Hero carousel navigation"
-            >
-              <button
-                type="button"
-                onClick={handlePrevSlide}
-                aria-label="Previous slide"
-                className="w-11 h-11 rounded-full bg-white text-[#031B44] shadow-md hover:bg-white/95 hover:shadow-lg active:scale-95 transition-all flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B30E1F] focus-visible:ring-offset-2 shrink-0"
-              >
-                <ArrowLeft className="w-5 h-5 text-[#031B44]" strokeWidth={2.2} aria-hidden="true" />
-              </button>
-
-              <span
-                className="font-bold text-white text-sm sm:text-base tracking-wider drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] px-1 tabular-nums"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {activeIndex + 1} / {validSlides.length}
-              </span>
-
-              <button
-                type="button"
-                onClick={handleNextSlide}
-                aria-label="Next slide"
-                className="w-11 h-11 rounded-full bg-white text-[#031B44] shadow-md hover:bg-white/95 hover:shadow-lg active:scale-95 transition-all flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B30E1F] focus-visible:ring-offset-2 shrink-0"
-              >
-                <ArrowRight className="w-5 h-5 text-[#031B44]" strokeWidth={2.2} aria-hidden="true" />
-              </button>
-            </div>
-          )}
-
           <div className="bg-[#FAF4EC] rounded-2xl border border-[#EAD7CF] shadow-md p-5 sm:p-6 lg:pl-[2.2%] flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             {isLoading && !featuredCamp && !isError ? (
               /* Loading State */
@@ -714,24 +602,7 @@ export default function HomePage({
             </Link>
           </div>
 
-          {/* Landscape Image Area (5:3 Aspect Ratio) */}
-          <div className="w-full">
-            {(cmsHome?.about?.imageUrl || aboutImageUrl) ? (
-              <div className="w-full aspect-[5/3] rounded-2xl overflow-hidden shadow-sm">
-                <img
-                  src={cmsHome?.about?.imageUrl || aboutImageUrl}
-                  alt={aboutImageAlt}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <ImagePlaceholder
-                className="w-full aspect-[5/3] rounded-2xl shadow-2xs"
-                iconClassName="w-10 h-10"
-                label="About photo (5:3 landscape)"
-              />
-            )}
-          </div>
+          <PhotoCarousel slides={aboutPhotos} label="About BDC" />
         </section>
       </div>
 
@@ -743,15 +614,16 @@ export default function HomePage({
       >
         {/* Full-width photographic background layer */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
-          <img
-            src={impactBannerUrl}
+          {(cmsHome?.impact?.bannerUrl ?? impactBannerUrl) && <img
+            key={cmsHome?.impact?.bannerUrl ?? impactBannerUrl}
+            src={cmsHome?.impact?.bannerUrl ?? impactBannerUrl}
             alt=""
             role="presentation"
             className="w-full h-full object-cover object-center"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
-          />
+          />}
           {/* Subtle contrast overlay to enhance text readability without doubling red tint */}
           <div className="absolute inset-0 bg-black/20" />
         </div>
@@ -805,6 +677,8 @@ export default function HomePage({
 
       <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%]">
 
+        <LeadershipSection data={cmsHome?.leadership} />
+
         {showTeamSection && (
           <section aria-label="Our Team" className="py-12 sm:py-14 lg:py-16">
           {/* Section Header */}
@@ -820,7 +694,7 @@ export default function HomePage({
           {/* Row 1: Chief Coordinator alone, centered */}
           {chiefCoordinator && (
             <div className="flex flex-col items-center text-center mb-8 sm:mb-10 lg:mb-12">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-[#F3DEDA] border-2 border-white shadow-xs flex items-center justify-center shrink-0">
+            <div className="w-36 h-36 sm:w-44 sm:h-44 lg:w-48 lg:h-48 rounded-full overflow-hidden bg-[#F3DEDA] border-2 border-white shadow-xs flex items-center justify-center shrink-0">
               {chiefCoordinator.image ? (
                 <img
                   src={chiefCoordinator.image}
@@ -844,12 +718,12 @@ export default function HomePage({
             </div>
           )}
 
-          {/* Row 2: Four Members with equal spacing and aligned portraits/names */}
+          {/* Center member rows even when fewer than four profiles are available. */}
           <div className="max-w-xs sm:max-w-sm lg:max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 items-start">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12 items-start">
               {teamMembers.map((member) => (
-                <div key={member.name} className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-[#F3DEDA] border-2 border-white shadow-xs mb-3 flex items-center justify-center shrink-0">
+                <div key={member.name} className="w-[calc(50%-12px)] sm:w-[calc(50%-16px)] lg:w-44 flex flex-col items-center text-center">
+                  <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full overflow-hidden bg-[#F3DEDA] border-2 border-white shadow-xs mb-3 flex items-center justify-center shrink-0">
                     {member.image ? (
                       <img
                         src={member.image}
@@ -988,11 +862,13 @@ export default function HomePage({
                 />
 
                 {/* Swami Keshvanand Portrait (Figure occupies ~82% of interior height, base aligns with arch base) */}
-                <img
-                  src="/assets/inspiration_swamiji.png"
+                {(cmsHome?.inspiration?.portraitUrl ?? '/assets/inspiration_swamiji.png') && <img
+                  key={cmsHome?.inspiration?.portraitUrl ?? '/assets/inspiration_swamiji.png'}
+                  src={cmsHome?.inspiration?.portraitUrl ?? '/assets/inspiration_swamiji.png'}
                   alt={INSPIRATION_CONTENT.portraitAlt}
                   className="absolute bottom-[1.5%] left-1/2 -translate-x-1/2 h-[82%] w-auto object-contain z-20 select-none drop-shadow-sm opacity-100"
-                />
+                  onError={event => { event.currentTarget.style.display = 'none'; }}
+                />}
               </div>
             </div>
 
