@@ -61,6 +61,14 @@ app.use('/api',               require('./routes/contact'));
 app.use('/api/upload',        require('./routes/upload'));
 app.use('/api/public',        require('./routes/public'));
 
+// ─── Serve built React app ───
+if (require('fs').existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get(/^\/(?!api|media).*/, (_req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
+
 // ─── 404 catch-all ───────────────────────────────────────────────────────────
 app.use((_req, res) => {
   res.status(404).json({ ok: false, message: 'Not found' });

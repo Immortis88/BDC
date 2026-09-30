@@ -29,3 +29,4 @@ backend/repair-backups/
 backend/asset/
 backend/assets/
 frontend/public/assets/reference/
+database/bdc-production.sql
