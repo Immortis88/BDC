@@ -81,6 +81,8 @@ app.use((err, _req, res, _next) => {
   res.status(err.status || 500).json({ ok: false, message: err.message || 'Internal server error' });
 });
 
+console.log("CWD:", process.cwd(), "| DB_HOST:", process.env.DB_HOST, "| DB_PORT:", process.env.DB_PORT);
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 (async () => {
   try {
