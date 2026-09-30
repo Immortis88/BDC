@@ -699,6 +699,7 @@ export function ImagePickerField({
   value,
   onChange,
   onRemove,
+  allowRemove = Boolean(onRemove),
   title,
   kind = 'SITE',
   campId = null,
@@ -740,6 +741,7 @@ export function ImagePickerField({
         >
           {value ? (
             <img
+              key={value}
               src={value}
               alt="Thumbnail"
               className={`w-full h-full ${isLogo ? 'object-contain p-1' : 'object-cover'}`}
@@ -778,13 +780,13 @@ export function ImagePickerField({
               <span>{value ? 'Change Image' : 'Choose Image'}</span>
             </button>
 
-            {value && onRemove && (
+            {value && allowRemove && (
               <button
                 type="button"
-                onClick={onRemove}
+                onClick={() => onRemove ? onRemove() : onChange('', null, { url: '', assetId: null })}
                 className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
               >
-                Remove
+                Remove image
               </button>
             )}
           </div>

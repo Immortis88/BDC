@@ -138,10 +138,10 @@ export default function AboutPage({
     };
   }, [impactInView]);
 
-  const effectiveHeroPhoto = cmsData?.hero?.heroPhotoUrl || heroPhotoUrl;
+  const effectiveHeroPhoto = cmsData?.hero?.heroPhotoUrl ?? heroPhotoUrl;
   const effectivePhotos = cmsData?.photos?.length ? aboutPhotos.map((p, i) => ({
     ...p,
-    url: cmsData.photos[i]?.url || p.url,
+    url: cmsData.photos[i]?.url ?? p.url,
     alt: cmsData.photos[i]?.alt || p.alt,
     label: cmsData.photos[i]?.label || p.label
   })) : aboutPhotos;

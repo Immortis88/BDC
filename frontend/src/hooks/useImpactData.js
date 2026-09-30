@@ -9,7 +9,7 @@ import {
  * useImpactData Hook
  * Synchronized metrics for Hero and Our Impact sections.
  */
-export function useImpactData() {
+export function useImpactData(previewImpact = null) {
   const [impactState, setImpactState] = useState(getCachedImpactState);
 
   useEffect(() => {
@@ -18,9 +18,10 @@ export function useImpactData() {
     return unsubscribe;
   }, []);
 
+  const units = previewImpact?.bloodUnits ?? impactState.data.bloodUnits.raw;
   const heroStat = {
-    value: impactState.data.donors.formatted,
-    label: impactState.data.donors.heroLabel
+    value: Number.isFinite(Number(units)) ? Number(units).toLocaleString() : '—',
+    label: 'Units of blood collected'
   };
 
   const impactStats = [
@@ -43,6 +44,17 @@ export function useImpactData() {
       label: impactState.data.campsOrganised.label
     }
   ];
+
+  if (previewImpact) {
+    const fields = ['bloodUnits', 'donorsCount', 'campsCount'];
+    impactStats.forEach((stat, index) => {
+      const value = previewImpact[fields[index]];
+      if (value !== undefined && Number.isFinite(Number(value))) {
+        stat.raw = Number(value);
+        stat.value = stat.raw.toLocaleString() + (index < 2 && stat.raw !== 0 ? '+' : '');
+      }
+    });
+  }
 
   return {
     heroStat,

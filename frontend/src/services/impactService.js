@@ -19,7 +19,7 @@ export const CONSOLIDATED_IMPACT_BASELINE = Object.freeze({
   },
   campsOrganised: {
     raw: 24,
-    formatted: '24+',
+    formatted: '24',
     label: 'Camps Organised'
   }
 });
@@ -88,8 +88,8 @@ export async function refreshImpactData() {
           },
           campsOrganised: {
             raw: liveData.camps_organised ?? CONSOLIDATED_IMPACT_BASELINE.campsOrganised.raw,
-            formatted: formatMetricCount(liveData.camps_organised, '+') !== '—'
-              ? formatMetricCount(liveData.camps_organised, '+')
+            formatted: formatMetricCount(liveData.camps_organised, '') !== '—'
+              ? formatMetricCount(liveData.camps_organised, '')
               : CONSOLIDATED_IMPACT_BASELINE.campsOrganised.formatted,
             label: 'Camps Organised'
           }
