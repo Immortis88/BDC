@@ -4,6 +4,7 @@ import { Droplet, Users, Mail, ArrowRight, Plus } from 'lucide-react';
 import { api } from '../services/api.js';
 import FaqSectionImage, { FAQ_IMAGE_SLOTS } from '../components/ui/FaqSectionImage.jsx';
 import { getFaqsByCategory } from '../data/faqData.js';
+import DonationProcess from '../components/faq/DonationProcess.jsx';
 
 export default function FaqPage() {
   const location = useLocation();
@@ -180,6 +181,10 @@ export default function FaqPage() {
 
         </div>
       </section>
+
+      <div className="px-4 sm:px-6 md:px-8">
+        <DonationProcess />
+      </div>
 
       {/* ===== Main FAQ Content Area ===== */}
       <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] py-16 sm:py-20 lg:py-24 space-y-20 sm:space-y-24 lg:space-y-28">
