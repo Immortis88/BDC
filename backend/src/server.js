@@ -1,16 +1,13 @@
-'use strict';
+const envPath = require('path').join(__dirname, '..', '.env');
+const envResult = require('dotenv').config({ path: envPath });
 
-require('dotenv').config({
-  path: require('path').join(__dirname, '..', '.env')
-});
-
-console.log('[DB settings]', JSON.stringify({
-  host: process.env.DB_HOST || '(missing)',
-  port: process.env.DB_PORT || '(missing)',
-  database: process.env.DB_NAME || '(missing)',
-  caPath: process.env.DB_CA_PATH || '(missing)'
+console.log('[env-check]', JSON.stringify({
+  time: new Date().toISOString(),
+  file: envPath,
+  exists: require('fs').existsSync(envPath),
+  loadError: envResult.error?.code || null,
+  loadedKeys: Object.keys(envResult.parsed || {})
 }));
-
 const express    = require('express');
 const cors       = require('cors');
 const helmet     = require('helmet');
