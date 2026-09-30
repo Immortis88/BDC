@@ -1,5 +1,15 @@
 'use strict';
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+
+require('dotenv').config({
+  path: require('path').join(__dirname, '..', '.env')
+});
+
+console.log('[DB settings]', JSON.stringify({
+  host: process.env.DB_HOST || '(missing)',
+  port: process.env.DB_PORT || '(missing)',
+  database: process.env.DB_NAME || '(missing)',
+  caPath: process.env.DB_CA_PATH || '(missing)'
+}));
 
 const express    = require('express');
 const cors       = require('cors');
