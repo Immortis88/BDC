@@ -1,0 +1,52 @@
+.donation-process {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  max-width: 1320px;
+  margin: 64px auto 0;
+  padding: 48px 24px;
+  border: 1px solid #f3deda;
+  border-radius: 24px;
+  background: #fffaf5;
+  box-shadow: 0 4px 24px rgb(152 27 36 / 4%);
+  scroll-margin-top: 110px;
+}
+.donation-process::before, .donation-process::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 55%;
+  height: 140px;
+  background: #fce8e3;
+  border-radius: 50%;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+.donation-process::before { top: -110px; left: -5%; }
+.donation-process::after { bottom: -110px; right: -5%; }
+.donation-process__header { text-align: center; margin: 0 auto 36px; max-width: 1050px; }
+.donation-process__eyebrow { display: flex; align-items: center; justify-content: center; gap: 16px; color: #b30e1f; font-size: 12px; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; }
+.donation-process__eyebrow::before, .donation-process__eyebrow::after { content: ''; width: 28px; height: 1px; background: currentColor; }
+.donation-process__header h2 { margin: 16px 0 10px; font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 46px); line-height: 1.15; font-weight: 700; color: #031b44; }
+.donation-process__header h2 span { color: #b30e1f; }
+.donation-process__header > p:last-child { color: #4a5568; font-size: 16px; }
+.donation-process__map { position: relative; }
+.donation-process__steps { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 64px 40px; list-style: none; padding: 0 24px; margin: 0; }
+.donation-process__step { min-width: 0; text-align: center; position: relative; z-index: 1; }
+.donation-process__step img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; }
+.donation-process__step h3 { position: relative; display: flex; align-items: center; justify-content: center; min-height: 38px; margin: 0 10px 12px; padding: 6px 12px 6px 40px; border-radius: 30px; background: #fce6df; color: #b30e1f; font-size: 15px; line-height: 1.3; font-weight: 800; text-transform: uppercase; }
+.donation-process__number { position: absolute; left: -8px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 40px; height: 40px; border: 3px solid #fffaf5; border-radius: 50%; background: #c8102e; color: white; font-size: 22px; }
+.donation-process__step > p { margin: 0; color: #4a5568; font-size: 14px; line-height: 1.6; }
+.donation-process__connectors { position: absolute; inset: 0; pointer-events: none; color: #df1734; z-index: 0; }
+@media (max-width: 1023px) {
+  .donation-process__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .donation-process { margin-top: 40px; padding: 32px 12px; border-radius: 20px; }
+  .donation-process__header { margin-bottom: 24px; }
+  .donation-process__header > p:last-child { font-size: 14px; }
+  .donation-process__steps { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 0 22px; }
+  .donation-process__step { width: calc(100% - 12px); max-width: 360px; justify-self: start; }
+  .donation-process__step:nth-child(even) { justify-self: end; }
+  .donation-process__step h3 { font-size: 14px; }
+}
