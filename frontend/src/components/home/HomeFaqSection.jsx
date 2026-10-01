@@ -4,9 +4,14 @@ import { FileText, Plus } from 'lucide-react';
 import { api } from '../../services/api.js';
 import { getHomeFaqs } from '../../data/faqData.js';
 
-export default function HomeFaqSection() {
+export default function HomeFaqSection({ content = {} }) {
   const [faqs, setFaqs] = useState(() => getHomeFaqs(5));
   const [openIndex, setOpenIndex] = useState(null);
+  const eyebrow = content.eyebrow ?? 'FAQ';
+  const headingLine1 = content.headingLine1 ?? 'Frequently';
+  const headingLine2 = content.headingLine2 ?? 'Asked Questions';
+  const description = content.description ?? 'Find quick answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.';
+  const hasHeading = Boolean(headingLine1 || headingLine2);
 
   useEffect(() => {
     let mounted = true;
@@ -51,19 +56,12 @@ export default function HomeFaqSection() {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <p className="text-xs sm:text-[13px] font-bold tracking-[0.25em] uppercase text-[#981B24] mb-2 sm:mb-2.5">
-            FAQ
-          </p>
-          <h2
-            id="homepage-faq-heading"
-            className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.12]"
-          >
-            <span className="block text-[#102B46]">Frequently</span>
-            <span className="block text-[#981B24] mt-0.5 sm:mt-1">Asked Questions</span>
-          </h2>
-          <p className="text-sm sm:text-[15px] lg:text-base text-[#4A5568] leading-relaxed mt-4 max-w-xl mx-auto">
-            Find quick answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.
-          </p>
+          {eyebrow && <p className="text-xs sm:text-[13px] font-bold tracking-[0.25em] uppercase text-[#981B24] mb-2 sm:mb-2.5">{eyebrow}</p>}
+          {hasHeading && <h2 id="homepage-faq-heading" className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.12]">
+            {headingLine1 && <span className="block text-[#102B46]">{headingLine1}</span>}
+            {headingLine2 && <span className="block text-[#981B24] mt-0.5 sm:mt-1">{headingLine2}</span>}
+          </h2>}
+          {description && <p className="text-sm sm:text-[15px] lg:text-base text-[#4A5568] leading-relaxed mt-4 max-w-xl mx-auto">{description}</p>}
         </div>
 
         {/* Two-Card Grid */}

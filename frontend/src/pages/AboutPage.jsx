@@ -162,9 +162,7 @@ export default function AboutPage({
         )}
 
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] pt-16 pb-24 lg:pb-28 animate-fade-in-up">
-          <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-3">
-            {cmsData?.hero?.eyebrow || 'About BDC'}
-          </p>
+          {(cmsData?.hero?.eyebrow ?? 'About BDC') && <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-3">{cmsData?.hero?.eyebrow ?? 'About BDC'}</p>}
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-4 max-w-3xl">
             {cmsData?.hero?.headline || 'A student initiative for a healthier tomorrow.'}
           </h1>
@@ -211,9 +209,7 @@ export default function AboutPage({
         {/* 3. Our Story */}
         <section className="py-12 sm:py-16">
           <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-            <p className="text-xs font-bold tracking-widest uppercase text-[#981B24] mb-2 sm:mb-2.5">
-              {cmsData?.story?.eyebrow || 'OUR STORY'}
-            </p>
+            {(cmsData?.story?.eyebrow ?? 'OUR STORY') && <p className="text-xs font-bold tracking-widest uppercase text-[#981B24] mb-2 sm:mb-2.5">{cmsData?.story?.eyebrow ?? 'OUR STORY'}</p>}
             <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[40px] font-bold text-[#102B46] tracking-tight leading-[1.15]">
               {cmsData?.story?.headline || 'Built by students, for the community.'}
             </h2>
@@ -249,9 +245,7 @@ export default function AboutPage({
         <section className="py-12 sm:py-16">
           <div className="bg-[#FDF3EF] border border-[#F3DEDA] rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 shadow-xs">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="text-xs font-bold tracking-widest uppercase text-[#981B24] mb-2 sm:mb-2.5">
-                WHAT DRIVES US
-              </p>
+              {(cmsData?.values?.eyebrow ?? 'WHAT DRIVES US') && <p className="text-xs font-bold tracking-widest uppercase text-[#981B24] mb-2 sm:mb-2.5">{cmsData?.values?.eyebrow ?? 'WHAT DRIVES US'}</p>}
               <h2 className="font-serif text-2xl sm:text-3xl lg:text-[34px] font-bold text-[#102B46] tracking-tight">
                 Mission, Vision &amp; Values
               </h2>
@@ -324,9 +318,7 @@ export default function AboutPage({
 
         {/* Foreground Content */}
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%]">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.2em] uppercase text-white/90 text-center mb-10 sm:mb-12 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-            OUR IMPACT
-          </p>
+          {(cmsData?.impact?.eyebrow ?? 'OUR IMPACT') && <p className="text-xs sm:text-sm font-bold tracking-[0.2em] uppercase text-white/90 text-center mb-10 sm:mb-12 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{cmsData?.impact?.eyebrow ?? 'OUR IMPACT'}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 sm:divide-x sm:divide-white/20 max-w-5xl mx-auto text-center items-center">
             {impactStats.map((s) => (
               <AboutImpactStatItem
@@ -344,9 +336,7 @@ export default function AboutPage({
       <section className="bg-[#981B24] text-white border-t border-[#7E141C]/80">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] py-6 sm:py-7 lg:py-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-8">
           <div>
-            <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-2">
-              {cmsData?.cta?.eyebrow || 'BE A LIFESAVER'}
-            </p>
+            {(cmsData?.cta?.eyebrow ?? 'BE A LIFESAVER') && <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-2">{cmsData?.cta?.eyebrow ?? 'BE A LIFESAVER'}</p>}
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-[34px] font-bold text-white tracking-tight leading-snug">
               {cmsData?.cta?.headline || 'Join us at the next camp.'}
             </h2>

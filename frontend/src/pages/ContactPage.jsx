@@ -131,15 +131,11 @@ export default function ContactPage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#981B24] text-white">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] pt-16 pb-24 lg:pb-28 animate-fade-in-up">
-          <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-3">
-            {settings?.heading || 'Contact Us'}
-          </p>
+          {(settings?.heading ?? 'Contact Us') && <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-3">{settings?.heading ?? 'Contact Us'}</p>}
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12] mb-4">
             {settings?.site_title ? `Get in Touch · ${settings.site_title}` : 'Get in Touch'}
           </h1>
-          <p className="text-[#F3DEDA] max-w-xl text-sm sm:text-base leading-relaxed">
-            {settings?.intro || 'Have questions about upcoming blood donation camps, interested in volunteering, or exploring partnership opportunities? Reach out to our campaign team.'}
-          </p>
+          {(settings?.intro ?? 'Have questions about upcoming blood donation camps, interested in volunteering, or exploring partnership opportunities? Reach out to our campaign team.') && <p className="text-[#F3DEDA] max-w-xl text-sm sm:text-base leading-relaxed">{settings?.intro ?? 'Have questions about upcoming blood donation camps, interested in volunteering, or exploring partnership opportunities? Reach out to our campaign team.'}</p>}
         </div>
         <HeroWave fill="#FFFDF9" />
       </section>

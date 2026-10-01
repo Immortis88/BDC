@@ -11,6 +11,7 @@ const HomePage = lazy(() => import('../pages/HomePage.jsx'));
 const AboutPage = lazy(() => import('../pages/AboutPage.jsx'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage.jsx'));
 const GalleryPage = lazy(() => import('../pages/GalleryPage.jsx'));
+const EventsPage = lazy(() => import('../pages/EventsPage.jsx'));
 const SupportersPage = lazy(() => import('../pages/SupportersPage.jsx'));
 const TeamPublicPage = lazy(() => import('../pages/TeamPublicPage.jsx'));
 const ContactPage = lazy(() => import('../pages/ContactPage.jsx'));
@@ -60,6 +61,7 @@ export default function AppRoutes() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="team" element={<TeamPublicPage />} />
           <Route path="gallery" element={<GalleryPage />} />
+          <Route path="events" element={<EventsPage />} />
           <Route path="supporters" element={<SupportersPage />} />
           <Route path="faq" element={<FaqPage />} />
           <Route path="contact" element={<ContactPage />} />

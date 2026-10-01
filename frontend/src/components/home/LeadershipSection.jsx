@@ -5,8 +5,8 @@ export default function LeadershipSection({ data }) {
   if (data?.enabled === false || !cards.length) return null;
   return <section aria-label="Our leadership" className="py-12 sm:py-16 max-w-[1400px] mx-auto px-4 sm:px-8">
     <div className="text-center mb-8 sm:mb-10">
-      <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2">{data?.eyebrow ?? 'Our Strength'}</p>
-      <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#031B44]">{data?.heading ?? 'The Leadership Behind Our Success'}</h2>
+      {(data?.eyebrow ?? 'Our Strength') && <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2">{data?.eyebrow ?? 'Our Strength'}</p>}
+      {(data?.heading ?? 'The Leadership Behind Our Success') && <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#031B44]">{data?.heading ?? 'The Leadership Behind Our Success'}</h2>}
     </div>
     <div className="flex flex-wrap justify-center gap-6">
       {cards.map((card, index) => <article key={card.id || index} className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm overflow-hidden rounded-2xl border border-[#EAD7CF] bg-[#FFFDF9] shadow-sm">

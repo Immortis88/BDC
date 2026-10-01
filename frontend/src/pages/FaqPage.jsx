@@ -10,6 +10,7 @@ export default function FaqPage() {
   const location = useLocation();
   const [images, setImages] = useState({});
   const [processContent, setProcessContent] = useState(null);
+  const [pageContent, setPageContent] = useState(null);
   const [generalFaqs, setGeneralFaqs] = useState(() => getFaqsByCategory('general'));
   const [donationFaqs, setDonationFaqs] = useState(() => getFaqsByCategory('donation'));
   
@@ -45,6 +46,7 @@ export default function FaqPage() {
         if (pageRes?.success) {
           setImages(pageRes.data.images || {});
           setProcessContent(pageRes.data.process);
+          setPageContent(pageRes.data.pageContent || {});
         }
         if (genRes?.success && genRes.data) setGeneralFaqs(genRes.data);
         if (donRes?.success && donRes.data) setDonationFaqs(donRes.data);
@@ -57,6 +59,15 @@ export default function FaqPage() {
       mounted = false;
     };
   }, []);
+
+  const pageText = {
+    eyebrow: pageContent?.eyebrow ?? 'FAQ',
+    headingLine1: pageContent?.headingLine1 ?? 'Frequently',
+    headingLine2: pageContent?.headingLine2 ?? 'Asked Questions',
+    description: pageContent?.description ?? 'Find answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.',
+    generalEyebrow: pageContent?.generalEyebrow ?? 'GENERAL QUESTIONS',
+    donationEyebrow: pageContent?.donationEyebrow ?? 'DONATION PROCESS'
+  };
 
   const scrollToSection = (e, sectionId) => {
     e.preventDefault();
@@ -74,19 +85,15 @@ export default function FaqPage() {
       <section className="relative w-full bg-[#FAF4EB] overflow-hidden">
         {/* Mobile / Small Screens (<md): Text header placed above artwork with comfortable spacing */}
         <div className="md:hidden pt-8 sm:pt-10 pb-4 px-4 sm:px-6 text-center max-w-xl mx-auto">
-          <p className="text-xs font-bold tracking-[0.25em] uppercase text-[#981B24] mb-3">
-            FAQ
-          </p>
+          {pageText.eyebrow && <p className="text-xs font-bold tracking-[0.25em] uppercase text-[#981B24] mb-3">{pageText.eyebrow}</p>}
           <h1
             className="font-serif text-2xl sm:text-3xl font-bold tracking-tight"
             style={{ lineHeight: 1.15 }}
           >
-            <span className="block text-[#102B46] [line-height:inherit]">Frequently</span>
-            <span className="block text-[#981B24] [line-height:inherit]">Asked Questions</span>
+            {pageText.headingLine1 && <span className="block text-[#102B46] [line-height:inherit]">{pageText.headingLine1}</span>}
+            {pageText.headingLine2 && <span className="block text-[#981B24] [line-height:inherit]">{pageText.headingLine2}</span>}
           </h1>
-          <p className="text-xs sm:text-sm text-[#4A5568] leading-relaxed mt-5 max-w-md mx-auto">
-            Find answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.
-          </p>
+          {pageText.description && <p className="text-xs sm:text-sm text-[#4A5568] leading-relaxed mt-5 max-w-md mx-auto">{pageText.description}</p>}
         </div>
 
         {/* Hero Artwork Container: Responsive full-width on mobile, proportional ~3:1 aspect ratio on desktop */}
@@ -101,19 +108,15 @@ export default function FaqPage() {
           <div className="hidden md:flex absolute inset-x-0 top-0 bottom-[22%] items-center lg:bottom-[42%] lg:items-end pointer-events-none">
             <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] pointer-events-auto">
               <div className="max-w-[340px] lg:max-w-[560px] xl:max-w-[620px] text-left">
-                <p className="text-xs sm:text-[13px] font-bold tracking-[0.25em] uppercase text-[#981B24] mb-3">
-                  FAQ
-                </p>
+                {pageText.eyebrow && <p className="text-xs sm:text-[13px] font-bold tracking-[0.25em] uppercase text-[#981B24] mb-3">{pageText.eyebrow}</p>}
                 <h1
                   className="font-serif text-2xl md:text-[30px] lg:text-[52px] xl:text-[60px] font-bold tracking-tight"
                   style={{ lineHeight: 1.15 }}
                 >
-                  <span className="block text-[#102B46] [line-height:inherit]">Frequently</span>
-                  <span className="block text-[#981B24] [line-height:inherit]">Asked Questions</span>
+                  {pageText.headingLine1 && <span className="block text-[#102B46] [line-height:inherit]">{pageText.headingLine1}</span>}
+                  {pageText.headingLine2 && <span className="block text-[#981B24] [line-height:inherit]">{pageText.headingLine2}</span>}
                 </h1>
-                <p className="text-xs md:text-[13px] lg:text-base text-[#4A5568] leading-relaxed mt-5 max-w-[340px] lg:max-w-[520px]">
-                  Find answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.
-                </p>
+                {pageText.description && <p className="text-xs md:text-[13px] lg:text-base text-[#4A5568] leading-relaxed mt-5 max-w-[340px] lg:max-w-[520px]">{pageText.description}</p>}
               </div>
             </div>
           </div>
@@ -199,9 +202,7 @@ export default function FaqPage() {
             
             {/* Left: General Accordion List */}
             <div>
-              <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#981B24] mb-1.5">
-                GENERAL QUESTIONS
-              </p>
+              {pageText.generalEyebrow && <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#981B24] mb-1.5">{pageText.generalEyebrow}</p>}
               <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102B46] tracking-tight mb-6 sm:mb-8">
                 Frequently Asked Questions
               </h2>
@@ -274,9 +275,7 @@ export default function FaqPage() {
 
             {/* Right: Donation Accordion List */}
             <div className="order-1 lg:order-2">
-              <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#981B24] mb-1.5">
-                DONATION PROCESS
-              </p>
+              {pageText.donationEyebrow && <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#981B24] mb-1.5">{pageText.donationEyebrow}</p>}
               <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102B46] tracking-tight mb-6 sm:mb-8">
                 Donation Related Questions
               </h2>

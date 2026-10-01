@@ -226,7 +226,7 @@ function mapHomepageDraft(payload, prev) {
     inspiration: {
       ...prev.inspiration,
       ...(payload.inspiration || {}),
-      sectionLabel: payload.inspiration?.sectionLabel || payload.inspiration?.eyebrow || prev.inspiration.sectionLabel,
+      sectionLabel: payload.inspiration?.eyebrow ?? payload.inspiration?.sectionLabel ?? prev.inspiration.sectionLabel,
       name: payload.inspiration?.name || payload.inspiration?.heading || prev.inspiration.name,
       closingStatement: payload.inspiration?.closingStatement || payload.inspiration?.quote || prev.inspiration.closingStatement
     },
@@ -236,7 +236,37 @@ function mapHomepageDraft(payload, prev) {
       headline1: payload.ctaBand?.headline1 || payload.ctaBand?.heading || prev.ctaBand.headline1,
       headline2: payload.ctaBand?.headline2 || '',
       buttonLabel: payload.ctaBand?.buttonLabel || payload.ctaBand?.ctaLabel || prev.ctaBand.buttonLabel
+    },
+    sectionHeadings: {
+      ...prev.sectionHeadings,
+      ...(payload.sectionHeadings || {}),
+      gallery: { ...prev.sectionHeadings.gallery, ...(payload.sectionHeadings?.gallery || {}) },
+      team: { ...prev.sectionHeadings.team, ...(payload.sectionHeadings?.team || {}) },
+      partners: { ...prev.sectionHeadings.partners, ...(payload.sectionHeadings?.partners || {}) },
+      faq: { ...prev.sectionHeadings.faq, ...(payload.sectionHeadings?.faq || {}) },
+      impact: { ...prev.sectionHeadings.impact, ...(payload.sectionHeadings?.impact || {}) }
     }
+  };
+}
+
+function mapAboutDraft(payload, previous) {
+  return {
+    ...previous, ...payload,
+    hero: { ...previous.hero, ...(payload.hero || {}) },
+    story: { ...previous.story, ...(payload.story || {}) },
+    values: { ...previous.values, ...(payload.values || {}) },
+    impact: { ...previous.impact, ...(payload.impact || {}) },
+    cta: { ...previous.cta, ...(payload.cta || {}) },
+    photos: payload.photos ?? previous.photos
+  };
+}
+
+function mapFaqDraft(payload, previous) {
+  return {
+    ...previous, ...payload,
+    pageContent: { ...previous.pageContent, ...(payload.pageContent || {}) },
+    images: { ...previous.images, ...(payload.images || {}) },
+    items: payload.items ?? previous.items
   };
 }
 
@@ -298,6 +328,7 @@ export default function WebsiteAdminPage() {
       bloodUnits: 1200,
       donorsCount: 2500,
       campsCount: 24,
+      eyebrow: 'Our Impact',
       bannerUrl: '/assets/bdc_impact_slightly_bright_webp.webp'
     },
     inspiration: {
@@ -314,6 +345,18 @@ export default function WebsiteAdminPage() {
       headline1: 'Your one small act.',
       headline2: 'Someone’s tomorrow.',
       buttonLabel: 'Register Now'
+    },
+    sectionHeadings: {
+      gallery: { eyebrow: 'GALLERY', title: 'Moments That Matter' },
+      team: { eyebrow: 'OUR TEAM', title: 'The People Behind the Campaign' },
+      partners: { eyebrow: 'OUR PARTNERS', title: 'Our Valued Partners' },
+      faq: {
+        eyebrow: 'FAQ',
+        headingLine1: 'Frequently',
+        headingLine2: 'Asked Questions',
+        description: 'Find quick answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.'
+      },
+      impact: { eyebrow: 'Our Impact' }
     }
   });
 
@@ -337,11 +380,14 @@ export default function WebsiteAdminPage() {
       paragraph2: 'Every camp is organised entirely by students — from outreach and registration to on-ground logistics and partner coordination — under the guidance of faculty advisors and NSS SKIT Jaipur. Through collective effort and compassion, BDC continues to inspire more people to donate blood and make a difference in the lives of those in need.'
     },
     values: {
+      eyebrow: 'WHAT DRIVES US',
       mission: { title: 'Our Mission', description: 'To create sustained awareness about voluntary blood donation and ensure a reliable, safe blood supply for the community around SKIT.' },
       vision: { title: 'Our Vision', description: 'A culture where regular voluntary blood donation is second nature to every eligible citizen, ensuring no life is lost due to blood shortage.' },
       values: { title: 'Our Values', description: 'Compassion, transparency, student leadership, and an unwavering commitment to safe, ethical, and voluntary donor care.' }
     },
+    impact: { eyebrow: 'OUR IMPACT' },
     cta: {
+      eyebrow: 'BE A LIFESAVER',
       headline: 'Ready to make a difference?',
       description: 'Join hundreds of donors and volunteers in saving lives at the next BDC camp.',
       buttonLabel: 'Register to Donate',
@@ -349,7 +395,7 @@ export default function WebsiteAdminPage() {
     }
   });
 
-  // 3. Pages Headers Form (Team, Gallery, Supporters)
+  // 3. Page content (Team, Gallery, Supporters, Events)
   const [pagesForm, setPagesForm] = useState({
     team: {
       eyebrow: 'ORGANIZING TEAM',
@@ -368,8 +414,25 @@ export default function WebsiteAdminPage() {
       title: 'Our Supporting Organizations',
       description: 'We are profoundly grateful to the healthcare institutions, blood banks, and community partners supporting BDC.',
       emptyMessage: 'Partner and supporter details will be announced soon.'
-    }
+    },
+    events: { posters: [] }
   });
+
+  const updateEventPosters = (update) => setPagesForm(previous => ({
+    ...previous,
+    events: {
+      ...previous.events,
+      posters: update(previous.events?.posters || [])
+    }
+  }));
+
+  const updateHomeSectionHeading = (section, field, value) => setHomepageForm(previous => ({
+    ...previous,
+    sectionHeadings: {
+      ...previous.sectionHeadings,
+      [section]: { ...previous.sectionHeadings?.[section], [field]: value }
+    }
+  }));
 
   // 4. Registration Text Form
   const [regTextForm, setRegTextForm] = useState({
@@ -385,7 +448,11 @@ export default function WebsiteAdminPage() {
   const [newNoticeLink, setNewNoticeLink] = useState('');
 
   // 6. FAQs
-  const [faqForm, setFaqForm] = useState({ items: [], images: {} });
+  const [faqForm, setFaqForm] = useState({ items: [], images: {}, pageContent: {
+    eyebrow: 'FAQ', headingLine1: 'Frequently', headingLine2: 'Asked Questions',
+    description: 'Find answers to the most common questions about the Blood Donation Campaign (BDC) at SKIT Jaipur.',
+    generalEyebrow: 'GENERAL QUESTIONS', donationEyebrow: 'DONATION PROCESS'
+  } });
   const faqs = faqForm.items;
   const setFaqs = (items) => setFaqForm(prev => ({ ...prev, items }));
   const [faqModalItem, setFaqModalItem] = useState(null); // { mode: 'create'|'edit', item }
@@ -393,6 +460,8 @@ export default function WebsiteAdminPage() {
   // 7. Contact & Footer
   const [contactForm, setContactForm] = useState({
     siteTitle: 'SKIT Blood Donation Campaign',
+    heading: 'Contact Us',
+    intro: 'Have questions about upcoming blood donation camps, interested in volunteering, or exploring partnership opportunities? Reach out to our campaign team.',
     phone: '+91 141 350 0000',
     email: 'bdc@skit.ac.in',
     address: 'Swami Keshvanand Institute of Technology, Management & Gramothan (SKIT), Ramnagaria, Jagatpura, Jaipur, Rajasthan 302017',
@@ -480,7 +549,7 @@ export default function WebsiteAdminPage() {
             });
           } else if (area === 'ABOUT') {
             setAboutForm(prev => {
-              const mapped = { ...prev, ...res.payload };
+              const mapped = mapAboutDraft(res.payload, prev);
               setInitialStates(i => ({ ...i, ABOUT: JSON.stringify(mapped) }));
               return mapped;
             });
@@ -500,8 +569,11 @@ export default function WebsiteAdminPage() {
             setNotices(res.payload.items);
             setInitialStates(i => ({ ...i, NOTICES: JSON.stringify(res.payload.items) }));
           } else if (area === 'FAQ' && res.payload.items) {
-            setFaqForm(res.payload);
-            setInitialStates(i => ({ ...i, FAQ: JSON.stringify(res.payload) }));
+            setFaqForm(prev => {
+              const mapped = mapFaqDraft(res.payload, prev);
+              setInitialStates(i => ({ ...i, FAQ: JSON.stringify(mapped) }));
+              return mapped;
+            });
           } else if (area === 'CONTACT') {
             setContactForm(prev => {
               const mapped = { ...prev, ...res.payload, socialLinks: normalizeSocialSettings(res.payload.socialLinks ?? prev.socialLinks) };
@@ -561,7 +633,7 @@ export default function WebsiteAdminPage() {
 
           if (aboutRes.success && aboutRes.payload) {
             setAboutForm(prev => {
-              const mapped = { ...prev, ...aboutRes.payload };
+              const mapped = mapAboutDraft(aboutRes.payload, prev);
               init.ABOUT = JSON.stringify(mapped);
               return mapped;
             });
@@ -597,8 +669,11 @@ export default function WebsiteAdminPage() {
           }
 
           if (faqRes.success && faqRes.payload?.items) {
-            setFaqForm(faqRes.payload);
-            init.FAQ = JSON.stringify(faqRes.payload);
+            setFaqForm(prev => {
+              const mapped = mapFaqDraft(faqRes.payload, prev);
+              init.FAQ = JSON.stringify(mapped);
+              return mapped;
+            });
           } else if (!faqRes.success) {
             errors.FAQ = faqRes.message || 'Failed to load';
           }
@@ -1324,6 +1399,40 @@ export default function WebsiteAdminPage() {
 
           <LeadershipEditor value={homepageForm.leadership} onChange={leadership => setHomepageForm(previous => ({ ...previous, leadership }))} />
 
+          <section className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-2xs space-y-6">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Homepage Section Headings</h3>
+              <p className="text-xs text-slate-500 mt-1">Edit the small labels, titles, and FAQ introduction shown above homepage sections.</p>
+            </div>
+            {[
+              { key: 'gallery', title: 'Gallery', fields: [['eyebrow', 'Small title'], ['title', 'Heading']] },
+              { key: 'team', title: 'Team', fields: [['eyebrow', 'Small title'], ['title', 'Heading']] },
+              { key: 'partners', title: 'Partners', fields: [['eyebrow', 'Small title'], ['title', 'Heading']] },
+              { key: 'faq', title: 'FAQ', fields: [['eyebrow', 'Small title'], ['headingLine1', 'Heading line 1'], ['headingLine2', 'Heading line 2'], ['description', 'Description']] },
+              { key: 'impact', title: 'Impact', fields: [['eyebrow', 'Small title']] }
+            ].map(section => (
+              <div key={section.key} className="border-t border-slate-100 pt-5 space-y-3">
+                <h4 className="text-sm font-bold text-slate-800">{section.title}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {section.fields.map(([field, label]) => (
+                    <label key={field} className={`block text-xs font-bold text-slate-700 ${field === 'description' ? 'sm:col-span-2' : ''}`}>
+                      {label}
+                      {field === 'description' ? (
+                        <textarea rows={2} value={homepageForm.sectionHeadings?.[section.key]?.[field] ?? ''}
+                          onChange={event => updateHomeSectionHeading(section.key, field, event.target.value)}
+                          className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-normal text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600" />
+                      ) : (
+                        <input type="text" value={homepageForm.sectionHeadings?.[section.key]?.[field] ?? ''}
+                          onChange={event => updateHomeSectionHeading(section.key, field, event.target.value)}
+                          className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-normal text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600" />
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+
           {/* Card 3: Our Impact Statistics Section (Section 4) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-2xs space-y-5">
             <div className="flex items-start gap-3.5">
@@ -1615,6 +1724,8 @@ export default function WebsiteAdminPage() {
               </div>
             </div>
           </div>
+
+
         </div>
       )}
 
@@ -1886,6 +1997,15 @@ export default function WebsiteAdminPage() {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="block text-xs font-bold text-slate-700">Section small title
+                <input value={aboutForm.values?.eyebrow ?? ''} onChange={event => setAboutForm(prev => ({ ...prev, values: { ...prev.values, eyebrow: event.target.value } }))} className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-normal" />
+              </label>
+              <label className="block text-xs font-bold text-slate-700">Impact section small title
+                <input value={aboutForm.impact?.eyebrow ?? ''} onChange={event => setAboutForm(prev => ({ ...prev, impact: { ...prev.impact, eyebrow: event.target.value } }))} className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-normal" />
+              </label>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
                 <label className="block text-xs font-bold text-slate-800">
@@ -2005,6 +2125,10 @@ export default function WebsiteAdminPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">CTA small title</label>
+                <input value={aboutForm.cta?.eyebrow ?? ''} onChange={event => setAboutForm(prev => ({ ...prev, cta: { ...prev.cta, eyebrow: event.target.value } }))} className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm" />
+              </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   CTA Headline
@@ -2319,6 +2443,53 @@ export default function WebsiteAdminPage() {
               />
             </div>
           </div>
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-2xs space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <span className="w-7 h-7 rounded-full bg-rose-50 text-[#B91C1C] font-bold text-xs flex items-center justify-center border border-rose-200 shrink-0 mt-0.5">4</span>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Events Page Posters</h3>
+                  <p className="text-xs text-slate-500 mt-1">Add, remove, and arrange the awareness campaign event posters shown on /events. Posters fill consistent portrait cards; click a card to view the full poster.</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => updateEventPosters(posters => [...posters, { id: `event-poster-${Date.now()}`, url: '', asset_id: null, alt: 'Awareness campaign event poster', width: null, height: null }])}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#B91C1C] hover:bg-[#991B1B] text-white text-xs font-bold shrink-0">
+                <Plus className="w-3.5 h-3.5" /> Add Poster
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(pagesForm.events?.posters || []).map((poster, index, posters) => (
+                <div key={poster.id || `event-poster-${index}`} className="rounded-xl border border-slate-200 p-4 space-y-3">
+                  <ImagePickerField
+                    label={`Poster ${index + 1}`}
+                    value={poster.url || ''}
+                    onChange={(url, assetId, image) => updateEventPosters(items => items.map(item => item.id === poster.id ? { ...item, url, asset_id: assetId, width: image?.width || null, height: image?.height || null } : item))}
+                    onRemove={() => updateEventPosters(items => items.filter(item => item.id !== poster.id))}
+                    kind="SITE"
+                    area="pages"
+                    defaultOriginal
+                    recommendation="Upload a JPG, PNG, or WebP. The event page keeps this poster's original proportions."
+                  />
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <label className="flex-1 min-w-48 text-xs font-semibold text-slate-700">Image description for screen readers
+                      <input type="text" maxLength={200} value={poster.alt || ''} onChange={event => updateEventPosters(items => items.map(item => item.id === poster.id ? { ...item, alt: event.target.value } : item))}
+                        className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-normal focus:outline-none focus:ring-2 focus:ring-red-600/20" />
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <button type="button" disabled={index === 0} aria-label={`Move poster ${index + 1} up`} onClick={() => updateEventPosters(items => { const next = [...items]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; return next; })}
+                        className="p-2 rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40" title="Move up"><ArrowUp className="w-4 h-4" /></button>
+                      <button type="button" disabled={index === posters.length - 1} aria-label={`Move poster ${index + 1} down`} onClick={() => updateEventPosters(items => { const next = [...items]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; return next; })}
+                        className="p-2 rounded-lg border border-slate-200 text-slate-600 disabled:opacity-40" title="Move down"><ArrowDown className="w-4 h-4" /></button>
+                      <button type="button" aria-label={`Remove poster ${index + 1}`} onClick={() => updateEventPosters(items => items.filter(item => item.id !== poster.id))}
+                        className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:text-red-700 hover:bg-red-50" title="Remove poster"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {!(pagesForm.events?.posters || []).length && <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-xs text-slate-500">No event posters yet. Add a poster to publish it on the Events page.</p>}
+            </div>
+          </div>
         </div>
       )}
 
@@ -2506,6 +2677,18 @@ export default function WebsiteAdminPage() {
       {/* ──────────────────────────────────────────────────────────────────────── */}
       {activeTab === 'FAQ' && (
         <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+            <div><h3 className="text-base font-bold text-slate-900">FAQ Page Headings</h3><p className="text-xs text-slate-500 mt-1">Leave a field blank to hide that label or text from the public page.</p></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                ['eyebrow', 'Hero small title'], ['headingLine1', 'Heading line 1'], ['headingLine2', 'Heading line 2'],
+                ['description', 'Hero description'], ['generalEyebrow', 'General questions label'], ['donationEyebrow', 'Donation process label']
+              ].map(([key, label]) => <label key={key} className="block text-xs font-bold text-slate-700">{label}
+                {key === 'description' ? <textarea rows={2} value={faqForm.pageContent?.[key] ?? ''} onChange={event => setFaqForm(prev => ({ ...prev, pageContent: { ...prev.pageContent, [key]: event.target.value } }))} className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-normal" />
+                  : <input value={faqForm.pageContent?.[key] ?? ''} onChange={event => setFaqForm(prev => ({ ...prev, pageContent: { ...prev.pageContent, [key]: event.target.value } }))} className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-normal" />}
+              </label>)}
+            </div>
+          </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
             <div>
               <h3 className="text-base font-bold text-slate-900">FAQ Page Images</h3>
@@ -2727,6 +2910,15 @@ export default function WebsiteAdminPage() {
             <p className="text-xs text-slate-500 mt-0.5">
               Official institutional contacts, campus address, and social links displayed across public pages.
             </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="block text-xs font-bold text-slate-700">Contact page small title
+              <input value={contactForm.heading ?? ''} onChange={event => setContactForm(prev => ({ ...prev, heading: event.target.value }))} className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-normal" />
+            </label>
+            <label className="block text-xs font-bold text-slate-700">Contact page introduction
+              <textarea rows={2} value={contactForm.intro ?? ''} onChange={event => setContactForm(prev => ({ ...prev, intro: event.target.value }))} className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-normal" />
+            </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

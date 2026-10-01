@@ -377,9 +377,7 @@ export default function GalleryPage() {
       {/* ── Hero ── */}
       <section className="relative overflow-hidden bg-[#981B24] text-white">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] pt-16 pb-24 lg:pb-28 animate-fade-in-up">
-          <p className="text-xs font-semibold tracking-widest uppercase text-[#F3DEDA] mb-3">
-            {cmsPages?.gallery?.eyebrow || 'Gallery'}
-          </p>
+          {(cmsPages?.gallery?.eyebrow ?? 'Gallery') && <p className="text-xs font-semibold tracking-widest uppercase text-[#F3DEDA] mb-3">{cmsPages?.gallery?.eyebrow ?? 'Gallery'}</p>}
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
             {cmsPages?.gallery?.title || 'Moments That Matter'}
           </h1>

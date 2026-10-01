@@ -88,7 +88,9 @@ router.post('/', upload.single('file'), async (req, res, next) => {
       return res.status(400).json({ ok: false, message: 'Invalid image dimensions.' });
     }
 
-    const MAX_PIXEL_DIM = 6000;
+    const isPageCmsImage = String(req.body?.kind || '').toUpperCase() === 'SITE'
+      && String(req.body?.area || '').toLowerCase() === 'pages';
+    const MAX_PIXEL_DIM = isPageCmsImage ? 8000 : 6000;
     if (dimensions.width > MAX_PIXEL_DIM || dimensions.height > MAX_PIXEL_DIM) {
       return res.status(400).json({
         ok: false,
