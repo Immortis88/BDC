@@ -123,6 +123,18 @@ const express = require('express');
     check(deniedReceipt.status === 409 && !deniedBody.data && !deniedBody.alreadyRegistered, 'Different submission key cannot disclose receipt details');
     await pool.query('UPDATE registration_attempts SET expires_at = DATE_SUB(NOW(), INTERVAL 1 HOUR) WHERE attempt_key_hash = ?', [crypto.createHash('sha256').update(privateDonor.submission_key).digest()]);
     check((await request('', null, 'POST', privateDonor)).status === 409, 'Expired submission key cannot recover receipt');
+    const injectionName = "Donor ' OR 1=1 --";
+    const injectionDonor = { ...candidate, full_name: injectionName, email: 'sql-safety@example.invalid' };
+    check((await request('', null, 'POST', injectionDonor)).status === 201, 'SQL-like donor name is accepted as ordinary text');
+    const [[literalName]] = await pool.query('SELECT full_name FROM registrations WHERE email = ?', [injectionDonor.email]);
+    check(literalName.full_name === injectionName, 'SQL-like donor name is stored unchanged');
+    const search = await (await request('?camp_id=1&name=' + encodeURIComponent(injectionName))).json();
+    check(search.data.length === 1 && search.data[0].full_name === injectionName, 'SQL-like search returns only the literal matching donor');
+    const [[objectValue]] = await pool.query('SELECT ? AS value', [{ column: 'value' }]);
+    check(objectValue.value === '[object Object]', 'Object query parameters cannot expand into SQL expressions');
+    let multipleStatementsBlocked = false;
+    try { await pool.query('SELECT 1; SELECT 2'); } catch (error) { multipleStatementsBlocked = error.code === 'ER_PARSE_ERROR'; }
+    check(multipleStatementsBlocked, 'Application connection rejects multiple SQL statements');
     console.log(checks+' checks passed in isolated database');
   } finally {
     if(server) { server.closeAllConnections(); await new Promise(resolve=>server.close(resolve)); }

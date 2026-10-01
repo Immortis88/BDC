@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test:registrations": "node scripts/test-full-suite.js",
-    "test:security": "node --test scripts/test-security.js"
+    "test:security": "node --test scripts/test-security.js",
+    "check:db-security": "node scripts/check-db-security.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

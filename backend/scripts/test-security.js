@@ -7,8 +7,26 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const { passwordError, generatePassword, registrationError, errorHandler } = require('../src/security');
 const { rateLimit } = require('../src/middleware/rateLimit');
+const { databaseOptions } = require('../src/dbConfig');
 
 const valid = { full_name: 'Test Donor', guardian_name: 'Test Guardian', date_of_birth: '2000-01-01', blood_group: 'O+', email: 'test@example.invalid', mobile: '9876543210', role: 'OUTSIDE_SKIT', consent_given: true, submission_key: crypto.randomUUID() };
+
+test('database defaults preserve local access and opt-in TLS verifies certificates and hostnames', () => {
+  const local = databaseOptions({});
+  assert.equal(local.host, 'localhost');
+  assert.equal(local.ssl, undefined);
+  assert.equal(local.stringifyObjects, true);
+  assert.equal(local.multipleStatements, false);
+  assert.deepEqual(local.flags, ['-LOCAL_FILES']);
+  const remote = databaseOptions({ DB_HOST: 'db.example.invalid', DB_USER: 'app', DB_SSL: 'true', DB_SSL_CA_FILE: '/provider/ca.pem' }, path => {
+    assert.equal(path, '/provider/ca.pem');
+    return 'test CA';
+  });
+  assert.equal(remote.ssl.rejectUnauthorized, true);
+  assert.equal(remote.ssl.verifyIdentity, true);
+  assert.equal(remote.ssl.ca, 'test CA');
+  assert.equal(remote.host, 'db.example.invalid');
+});
 
 test('registration rejects malformed types, lengths, consent, roles and mobile numbers', () => {
   assert.equal(registrationError(valid), null);

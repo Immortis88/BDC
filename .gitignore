@@ -13,6 +13,9 @@ frontend/.vite/
 .env
 .env.local
 .env.*.local
+backend/.env.*
+!backend/.env.example
+backend/certs/
 
 # Logs
 *.log
@@ -25,6 +28,7 @@ yarn-error.log*
 Thumbs.db
 database/exports/
 database/cleanup_backups/
+database/backups/
 backend/repair-backups/
 backend/asset/
 backend/assets/
