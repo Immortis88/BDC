@@ -302,27 +302,44 @@ export default function HomePage({
   const showSponsorsSection = !isLoading && featuredCamp?.visibility?.sponsors !== false &&
     partners.length > 0;
 
+  const noticeChars = notices.reduce(
+    (n, x) => n + (x.text?.length || 0) + (x.linkLabel?.length || 0), 0
+  );
+  const noticeDuration = Math.max(18, noticeChars * 0.22); // seconds, scales with text length
+  
   return (
     <div className="min-h-screen bg-[#FAF4EB]">
       {/* Notices & Announcements Strip (Shown only when enabled notices exist) */}
       {notices.length > 0 && (
-        <div className="bg-[#B91C1C] text-white px-4 py-2 sm:px-6 shadow-xs relative z-30">
-          <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3 text-xs sm:text-sm font-medium">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className="p-1 rounded bg-white/20 text-white shrink-0">
-                <Bell className="w-3.5 h-3.5" />
-              </span>
-              <span className="truncate">{notices[0].text}</span>
-            </div>
-            {notices[0].linkUrl && (
-              <Link
-                to={notices[0].linkUrl}
-                className="shrink-0 inline-flex items-center gap-1 font-bold underline hover:no-underline text-white/95"
+        <div className="bg-[#B91C1C] text-white shadow-xs relative z-30">
+          <div className="max-w-[1600px] mx-auto flex items-center gap-3 px-4 sm:px-6 py-2 text-xs sm:text-sm font-medium">
+            <Bell className="w-4 h-4 shrink-0" aria-hidden="true" />
+            <div className="notice-marquee flex-1 min-w-0">
+              <div
+                className="notice-marquee-track"
+                style={{ '--notice-duration': `${noticeDuration}s` }}
               >
-                <span>{notices[0].linkLabel || 'Learn More'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            )}
+                {[0, 1].map((copy) => (
+                  <div key={copy} className="notice-marquee-group" aria-hidden={copy === 1 ? 'true' : undefined}>
+                    {notices.map((n, i) => (
+                      <span key={n.id ?? n._id ?? i} className="notice-marquee-item">
+                        <span>{n.text}</span>
+                        {n.linkUrl && (
+                          <Link
+                            to={n.linkUrl}
+                            tabIndex={copy === 1 ? -1 : undefined}
+                            className="inline-flex items-center gap-1 font-bold underline hover:no-underline text-white/95"
+                          >
+                            <span>{n.linkLabel || 'Learn More'}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -35,10 +35,10 @@ export default function Footer({ tagline, verifiedPhone = null, socialLinks }) {
   return (
     <footer className="bg-[#0B233D] text-[#FFF9F2] mt-auto border-t border-[#061525]">
       <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] py-10 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.3fr_1fr] gap-8 lg:gap-10 mb-8 sm:mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.3fr_1fr] gap-x-5 gap-y-8 sm:gap-8 lg:gap-10 mb-8 sm:mb-10">
           
           {/* Column 1: Branding */}
-          <div className="lg:border-r lg:border-slate-700/60 lg:pr-8">
+          <div className="col-span-2 sm:col-span-1 lg:border-r lg:border-slate-700/60 lg:pr-8">
             <div className="inline-flex items-center gap-2.5 sm:gap-3 bg-[#D9DEDC] p-2.5 sm:p-3 rounded-[8px] shadow-xs shrink-0">
               <img
                 src="/assets/Skit_logo.png"
@@ -58,7 +58,7 @@ export default function Footer({ tagline, verifiedPhone = null, socialLinks }) {
           </div>
 
           {/* Column 2: Quick Links */}
-          <div>
+          <div className="min-w-0">
             <h4 className="text-white text-sm font-semibold mb-3 sm:mb-4 tracking-wide">
               Quick Links
             </h4>
@@ -123,11 +123,11 @@ export default function Footer({ tagline, verifiedPhone = null, socialLinks }) {
           </div>
 
           {/* Column 3: Contact & Location */}
-          <div className="lg:border-r lg:border-slate-700/60 lg:pr-8">
+          <div className="min-w-0 lg:border-r lg:border-slate-700/60 lg:pr-8">
             <h4 className="text-white text-sm font-semibold mb-3 sm:mb-4 tracking-wide">
               Contact Us
             </h4>
-            <div className="space-y-2.5 text-xs text-slate-300 leading-relaxed">
+            <div className="space-y-2.5 text-xs text-slate-300 leading-relaxed break-words">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blood-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <span>
@@ -156,7 +156,7 @@ export default function Footer({ tagline, verifiedPhone = null, socialLinks }) {
           </div>
 
           {/* Column 4: Follow Us & Legal */}
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <h4 className="text-white text-sm font-semibold mb-3 sm:mb-4 tracking-wide">
               Connect With Us
             </h4>

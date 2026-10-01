@@ -97,11 +97,9 @@ export default function Navbar() {
       {/* Floating / Sticky Navbar */}
       <header
         ref={headerRef}
-        className={`fixed z-40 inset-x-0 mx-auto transition-all duration-200 ease-out motion-reduce:transition-none ${
+          className={`fixed z-40 inset-x-0 mx-auto transition-all duration-200 ease-out motion-reduce:transition-none ${
           isScrolled
-            ? `top-[8px] md:top-[14px] w-[calc(100%-24px)] md:w-[90%] max-w-[1600px] navbar-scrolled ${
-                mobileMenuOpen ? 'rounded-3xl' : 'rounded-full'
-              } overflow-hidden`
+            ? 'top-[8px] md:top-[14px] w-[calc(100%-24px)] md:w-[90%] max-w-[1600px] navbar-scrolled rounded-[33px] overflow-hidden'
             : 'top-0 w-full max-w-full rounded-none navbar-top'
         }`}
       >
@@ -231,76 +229,72 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        {mobileMenuOpen && (
-          <div
-            id="mobile-navigation"
-            className={`md:hidden px-4 pt-3 pb-5 transition-colors ${
-              isScrolled
-                ? 'border-t border-[rgba(152,27,36,0.12)] max-h-[calc(100vh-90px)] overflow-y-auto'
-                : 'border-t border-[#EAD7CF] bg-[#FAF4EB] shadow-xl animate-in slide-in-from-top-2 duration-200 max-h-[calc(100vh-80px)] overflow-y-auto'
-            }`}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile Navigation"
-          >
-            <div className="space-y-1">
-              {NAV_LINKS.map((link) => (
-                <NavLink
-                  key={link.path}
-                  to={link.path}
-                  end={link.path === '/'}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-colors ${
-                      isActive
-                        ? 'text-[#B30E1F] bg-[#EAD7CF]/40 font-semibold'
-                        : 'text-[#374151] hover:text-[#B30E1F] hover:bg-[#EAD7CF]/20 font-medium'
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <span>{link.name}</span>
-                      {isActive && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#B30E1F]" aria-hidden="true" />
-                      )}
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </div>
+                {/* Mobile Menu Dropdown */}
+        <div
+          className={`md:hidden grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${
+            mobileMenuOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+          }`}
+          aria-hidden={!mobileMenuOpen}
+          inert={!mobileMenuOpen ? '' : undefined}
+        >
+          <div className="overflow-hidden min-h-0">
+            <div
+              id="mobile-navigation"
+              className={`px-4 pt-3 pb-5 border-t max-h-[calc(100vh-90px)] overflow-y-auto ${
+                isScrolled ? 'border-[rgba(152,27,36,0.12)]' : 'border-[#EAD7CF] bg-[#FAF4EB]'
+              }`}
+              aria-label="Mobile Navigation"
+            >
+              <div className="space-y-1">
+                {NAV_LINKS.map((link) => (
+                  <NavLink
+                    key={link.path}
+                    to={link.path}
+                    end={link.path === '/'}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-colors ${
+                        isActive
+                          ? 'text-[#B30E1F] bg-[#EAD7CF]/40 font-semibold'
+                          : 'text-[#374151] hover:text-[#B30E1F] hover:bg-[#EAD7CF]/20 font-medium'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <span>{link.name}</span>
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#B30E1F]" aria-hidden="true" />}
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
 
-            <div className="mt-4 pt-3 border-t border-[#EAD7CF]/60">
-              {isRegistrationOpen ? (
-                <Link
-                  to={registerHref}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 ${
-                    isScrolled ? 'rounded-full' : 'rounded-lg'
-                  } text-sm font-semibold text-white bg-[#B30E1F] hover:bg-[#990A18] shadow-xs transition-all duration-150`}
-                >
-                  <span>Register</span>
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  aria-disabled="true"
-                  className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 ${
-                    isScrolled ? 'rounded-full' : 'rounded-lg'
-                  } text-sm font-semibold text-white bg-[#B30E1F] opacity-80 shadow-xs cursor-not-allowed`}
-                >
-                  <span>{registerLabel}</span>
-                  {(isError || isLoading) && (
+              <div className="mt-4 pt-3 border-t border-[#EAD7CF]/60">
+                {isRegistrationOpen ? (
+                  <Link
+                    to={registerHref}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full text-sm font-semibold text-white bg-[#B30E1F] hover:bg-[#990A18] shadow-xs transition-all duration-150"
+                  >
+                    <span>Register</span>
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  )}
-                </button>
-              )}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full text-sm font-semibold text-white bg-[#B30E1F] opacity-80 shadow-xs cursor-not-allowed"
+                  >
+                    <span>{registerLabel}</span>
+                    {(isError || isLoading) && <ArrowRight className="w-4 h-4" aria-hidden="true" />}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </header>
     </>
   );
