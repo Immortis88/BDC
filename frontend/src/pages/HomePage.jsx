@@ -350,9 +350,9 @@ export default function HomePage({
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-[10%] pt-7 sm:pt-9 lg:pt-11 pb-6 sm:pb-8 grid grid-cols-1 lg:grid-cols-2 items-center gap-6 lg:gap-8">
           <div className="min-w-0 max-w-md lg:max-w-[480px] xl:max-w-[520px] animate-fade-in-up">
             {/* Category / Institutional tag */}
-            <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
-              {cmsHome?.hero?.eyebrow || 'SKIT JAIPUR · BLOOD DONATION CAMPAIGN'}
-            </p>
+            {(cmsHome?.hero?.eyebrow ?? 'SKIT JAIPUR · BLOOD DONATION CAMPAIGN') && <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
+              {cmsHome?.hero?.eyebrow ?? 'SKIT JAIPUR · BLOOD DONATION CAMPAIGN'}
+            </p>}
 
             {/* Main Headline in Lora Serif */}
             <h1 className="font-serif text-4xl sm:text-5xl md:text-[56px] lg:text-[62px] xl:text-[66px] font-bold tracking-tight text-[#031B44] leading-[1.08] mb-3">
@@ -596,9 +596,9 @@ export default function HomePage({
         <section className="py-10 sm:py-12 lg:py-14 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12 items-center">
           {/* Centered Content Column */}
           <div className="flex flex-col items-center text-center">
-            <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
-              {cmsHome?.about?.eyebrow || 'ABOUT BDC'}
-            </p>
+            {(cmsHome?.about?.eyebrow ?? 'ABOUT BDC') && <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
+              {cmsHome?.about?.eyebrow ?? 'ABOUT BDC'}
+            </p>}
             <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight mb-4">
               {(cmsHome?.about?.heading || cmsHome?.about?.headline) ? (
                 <span className="block">{cmsHome?.about?.heading || cmsHome?.about?.headline}</span>
@@ -647,9 +647,9 @@ export default function HomePage({
 
         {/* Foreground Content */}
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%]">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.2em] uppercase text-white/90 text-center mb-10 sm:mb-12 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-            Our Impact
-          </p>
+          {(cmsHome?.sectionHeadings?.impact?.eyebrow ?? 'Our Impact') && <p className="text-xs sm:text-sm font-bold tracking-[0.2em] uppercase text-white/90 text-center mb-10 sm:mb-12 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+            {cmsHome?.sectionHeadings?.impact?.eyebrow ?? 'Our Impact'}
+          </p>}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 sm:divide-x sm:divide-white/20 max-w-5xl mx-auto text-center items-center">
             {impactStats.map((s) => (
               <ImpactStatItem
@@ -668,12 +668,12 @@ export default function HomePage({
       <section aria-label="Campaign Gallery" className="py-12 sm:py-14 lg:py-16 overflow-hidden">
         {/* Section Header */}
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] text-center mb-6 sm:mb-8">
-          <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
-            GALLERY
-          </p>
-          <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight">
-            Moments That Matter
-          </h2>
+          {(cmsHome?.sectionHeadings?.gallery?.eyebrow ?? 'GALLERY') && <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
+            {cmsHome?.sectionHeadings?.gallery?.eyebrow ?? 'GALLERY'}
+          </p>}
+          {(cmsHome?.sectionHeadings?.gallery?.title ?? 'Moments That Matter') && <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight">
+            {cmsHome?.sectionHeadings?.gallery?.title ?? 'Moments That Matter'}
+          </h2>}
         </div>
 
         {/* Horizontally moving stacked-photo carousel */}
@@ -700,12 +700,12 @@ export default function HomePage({
           <section aria-label="Our Team" className="py-12 sm:py-14 lg:py-16">
           {/* Section Header */}
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
-              OUR TEAM
-            </p>
-            <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight">
-              The People Behind the Campaign
-            </h2>
+            {(cmsHome?.sectionHeadings?.team?.eyebrow ?? 'OUR TEAM') && <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
+              {cmsHome?.sectionHeadings?.team?.eyebrow ?? 'OUR TEAM'}
+            </p>}
+            {(cmsHome?.sectionHeadings?.team?.title ?? 'The People Behind the Campaign') && <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight">
+              {cmsHome?.sectionHeadings?.team?.title ?? 'The People Behind the Campaign'}
+            </h2>}
           </div>
 
           {/* Row 1: Chief Coordinator alone, centered */}
@@ -783,12 +783,12 @@ export default function HomePage({
         >
         {/* Centered Section Header */}
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] text-center mb-8 sm:mb-10">
-          <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
-            OUR PARTNERS
-          </p>
-          <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight">
-            Our Valued Partners
-          </h2>
+          {(cmsHome?.sectionHeadings?.partners?.eyebrow ?? 'OUR PARTNERS') && <p className="text-xs font-bold tracking-widest uppercase text-[#B30E1F] mb-2 sm:mb-2.5">
+            {cmsHome?.sectionHeadings?.partners?.eyebrow ?? 'OUR PARTNERS'}
+          </p>}
+          {(cmsHome?.sectionHeadings?.partners?.title ?? 'Our Valued Partners') && <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.15] tracking-tight">
+            {cmsHome?.sectionHeadings?.partners?.title ?? 'Our Valued Partners'}
+          </h2>}
         </div>
 
         {/* Widened moving strip: nearly full page width with ~3.5% side margins on desktop */}
@@ -899,9 +899,7 @@ export default function HomePage({
 
               {/* Main Text Content (Constrained width so description wraps naturally) */}
               <div className="flex-1 text-center lg:text-left">
-                <p className="text-xs sm:text-[13px] font-bold tracking-[0.2em] uppercase text-[#B30E1F] mb-1.5 sm:mb-2">
-                  {cmsHome?.inspiration?.eyebrow || INSPIRATION_CONTENT.sectionLabel}
-                </p>
+                {(cmsHome?.inspiration?.eyebrow ?? cmsHome?.inspiration?.sectionLabel ?? INSPIRATION_CONTENT.sectionLabel) && <p className="text-xs sm:text-[13px] font-bold tracking-[0.2em] uppercase text-[#B30E1F] mb-1.5 sm:mb-2">{cmsHome?.inspiration?.eyebrow ?? cmsHome?.inspiration?.sectionLabel ?? INSPIRATION_CONTENT.sectionLabel}</p>}
                 <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-[#031B44] leading-[1.12] tracking-tight mb-2.5 sm:mb-3">
                   {cmsHome?.inspiration?.heading || INSPIRATION_CONTENT.name}
                 </h2>
@@ -987,15 +985,15 @@ export default function HomePage({
       </section>
 
       {/* ===== Frequently Asked Questions (Section 9) ===== */}
-      <HomeFaqSection />
+      <HomeFaqSection content={cmsHome?.sectionHeadings?.faq} />
 
       {/* ===== Final CTA (Section 10) ===== */}
       <section className="bg-[#981B24] text-white">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] py-6 sm:py-7 lg:py-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-8">
           <div>
-            <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-2 sm:mb-2.5">
-              {cmsHome?.ctaBand?.eyebrow || 'BE A LIFESAVER'}
-            </p>
+            {(cmsHome?.ctaBand?.eyebrow ?? 'BE A LIFESAVER') && <p className="text-xs font-bold tracking-widest uppercase text-[#F3DEDA] mb-2 sm:mb-2.5">
+              {cmsHome?.ctaBand?.eyebrow ?? 'BE A LIFESAVER'}
+            </p>}
             <h2 className="font-serif text-3xl sm:text-[34px] lg:text-[38px] xl:text-[40px] font-bold text-white tracking-tight leading-[1.15]">
               {cmsHome?.ctaBand?.heading ? (
                 <span className="block">{cmsHome.ctaBand.heading}</span>

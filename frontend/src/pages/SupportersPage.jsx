@@ -42,6 +42,10 @@ function LogoCard({ name, logoUrl, website_url }) {
 export default function SupportersPage() {
   const { data: sections = [], isLoading } = usePublicSponsors();
   const [cmsPages, setCmsPages] = useState(null);
+  const eyebrow = cmsPages?.supporters?.eyebrow ?? 'Our Sponsors';
+  const title = cmsPages?.supporters?.title ?? 'Partners in Saving Lives';
+  const description = cmsPages?.supporters?.description ?? 'We are grateful to our sponsors for their generous support in making the Blood Donation Campaign possible. Together, we create a healthier, stronger community.';
+  const emptyMessage = cmsPages?.supporters?.emptyMessage ?? 'There are currently no sponsors or partner organizations published for this campaign.';
 
   useEffect(() => {
     let mounted = true;
@@ -58,15 +62,9 @@ export default function SupportersPage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#981B24] text-white">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:pl-[8%] lg:pr-[6%] pt-16 pb-24 lg:pb-28 animate-fade-in-up">
-          <p className="text-xs font-semibold tracking-widest uppercase text-[#F3DEDA] mb-3">
-            {cmsPages?.supporters?.eyebrow || 'Our Sponsors'}
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            {cmsPages?.supporters?.title || 'Partners in Saving Lives'}
-          </h1>
-          <p className="text-[#F3DEDA] max-w-xl text-sm sm:text-base leading-relaxed">
-            {cmsPages?.supporters?.description || 'We are grateful to our sponsors for their generous support in making the Blood Donation Campaign possible. Together, we create a healthier, stronger community.'}
-          </p>
+          {eyebrow && <p className="text-xs font-semibold tracking-widest uppercase text-[#F3DEDA] mb-3">{eyebrow}</p>}
+          {title && <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">{title}</h1>}
+          {description && <p className="text-[#F3DEDA] max-w-xl text-sm sm:text-base leading-relaxed">{description}</p>}
         </div>
         <HeroWave fill="#FFFDF9" />
       </section>
@@ -84,10 +82,7 @@ export default function SupportersPage() {
                 className={idx % 2 === 1 ? 'py-12 px-6 sm:px-8 lg:px-10 bg-[#FDF3EF] rounded-3xl' : 'py-8'}
               >
                 <div className="text-center mb-8">
-                  <p className="text-xs font-semibold tracking-widest uppercase text-[#981B24] mb-2">
-                    {sec.heading}
-                  </p>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">{sec.heading}</h2>
+                  {sec.heading && <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">{sec.heading}</h2>}
                   {sec.description && (
                     <p className="text-sm text-[#68717D] max-w-xl mx-auto">{sec.description}</p>
                   )}
@@ -103,9 +98,7 @@ export default function SupportersPage() {
         ) : (
           <div className="py-20 text-center bg-[#FAF4EB] border border-[#F3DEDA] rounded-2xl p-8 max-w-xl mx-auto my-8">
             <h3 className="text-base font-bold text-[#102B46] mb-1">No Sponsors Listed</h3>
-            <p className="text-xs text-slate-500">
-              {cmsPages?.supporters?.emptyMessage || 'There are currently no sponsors or partner organizations published for this campaign.'}
-            </p>
+            {emptyMessage && <p className="text-xs text-slate-500">{emptyMessage}</p>}
           </div>
         )}
       </div>
