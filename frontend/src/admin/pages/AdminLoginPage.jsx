@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
     try {
       const res = await login(email, password);
       if (res.success) {
-        if (res.user?.must_change_password && res.user?.role === 'SUPER_ADMIN') {
+        if (res.user?.must_change_password) {
           navigate('/admin/change-password', { replace: true });
         } else {
           navigate(from, { replace: true });

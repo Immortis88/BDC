@@ -21,6 +21,7 @@ const express = require('express');
     process.env.DB_NAME = database;
     ({pool} = require('../src/db'));
     await pool.query("INSERT INTO admins (full_name,email,password_hash,role) VALUES ('Test Super','super@example.invalid','unused','SUPER_ADMIN'),('Test Allowed','allowed@example.invalid','unused','REGULAR_ADMIN'),('Test Denied','denied@example.invalid','unused','REGULAR_ADMIN')");
+    await pool.query('UPDATE admins SET must_change_password=FALSE');
     await pool.query("INSERT INTO admin_permissions (admin_id,permission_key,granted_by) VALUES (2,'camp.registrations',1)");
     for (const year of [2097,2098]) {
       await pool.query("INSERT INTO camps (camp_year,internal_name,public_title,camp_date,starts_at,ends_at,venue,registration_open,media_folder,created_by,updated_by) VALUES (?, 'Test','Test',?,'09:00','16:00','Test',1,?,1,1)",[year,year+'-01-01','Test '+year]);
@@ -110,6 +111,18 @@ const express = require('express');
       const response = await request('',null,'POST',{...candidate,email:'blood'+encodeURIComponent(blood)+'@example.invalid',blood_group:blood});
       check(response.status===201,'Blood group accepted: '+blood);
     }
+    const privateDonor = { ...candidate, email: 'private@example.invalid', submission_key: crypto.randomUUID() };
+    const duplicates = await Promise.all(Array.from({ length: 4 }, () => request('', null, 'POST', privateDonor)));
+    check(duplicates.filter(r => r.status === 201).length === 1 && duplicates.filter(r => r.status === 200).length === 3, 'Simultaneous retries create one registration and recover the same receipt');
+    const duplicateBodies = await Promise.all(duplicates.map(r => r.json()));
+    check(new Set(duplicateBodies.map(r => r.data.registration_code)).size === 1, 'Concurrent retries share one registration code');
+    const [[savedPrivate]] = await pool.query('SELECT COUNT(*) AS total FROM registrations WHERE email = ?', [privateDonor.email]);
+    check(savedPrivate.total === 1, 'Concurrent duplicate requests persist exactly one donor');
+    const deniedReceipt = await request('', null, 'POST', { ...privateDonor, submission_key: crypto.randomUUID() });
+    const deniedBody = await deniedReceipt.json();
+    check(deniedReceipt.status === 409 && !deniedBody.data && !deniedBody.alreadyRegistered, 'Different submission key cannot disclose receipt details');
+    await pool.query('UPDATE registration_attempts SET expires_at = DATE_SUB(NOW(), INTERVAL 1 HOUR) WHERE attempt_key_hash = ?', [crypto.createHash('sha256').update(privateDonor.submission_key).digest()]);
+    check((await request('', null, 'POST', privateDonor)).status === 409, 'Expired submission key cannot recover receipt');
     console.log(checks+' checks passed in isolated database');
   } finally {
     if(server) { server.closeAllConnections(); await new Promise(resolve=>server.close(resolve)); }

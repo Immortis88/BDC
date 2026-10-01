@@ -15,20 +15,11 @@ export default function AdminWorkspaceLayout() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // If unauthenticated, redirect to login
-  if (!user) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
-  }
-
-  // If forced to change password
-  if (user.must_change_password && location.pathname !== '/admin/change-password') {
-    return <Navigate to="/admin/change-password" replace />;
-  }
-
   const numericCampId = Number(campId);
 
   // Security check: Regular admins can only access the Live Camp workspace
   useEffect(() => {
+    if (!user || user.must_change_password) return;
     if (!isSuperAdmin && liveCampId && numericCampId && numericCampId !== Number(liveCampId)) {
       Swal.fire({
         icon: 'warning',
@@ -38,14 +29,18 @@ export default function AdminWorkspaceLayout() {
       });
       navigate('/admin/camp', { replace: true });
     }
-  }, [isSuperAdmin, liveCampId, numericCampId, navigate]);
+  }, [user, isSuperAdmin, liveCampId, numericCampId, navigate]);
 
   // Sync selectedCampId in context when URL changes, without changing liveCampId
   useEffect(() => {
-    if (numericCampId) {
+    if (user && !user.must_change_password && numericCampId) {
       selectCamp(numericCampId);
     }
-  }, [numericCampId, selectCamp]);
+  }, [user, numericCampId, selectCamp]);
+
+  // Keep hooks unconditional when login/password state changes.
+  if (!user) return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  if (user.must_change_password) return <Navigate to="/admin/change-password" replace />;
 
   const currentCamp = camps.find(c => c.id === numericCampId) || selectedCamp;
   const isLive = numericCampId === Number(liveCampId);

@@ -30,7 +30,7 @@ async function requireAuth(req, res, next) {
     // Single query: join session → admin, validate all conditions
     const [[row]] = await pool.query(
       `SELECT s.admin_id, s.session_version AS sess_ver,
-              a.session_version AS curr_ver, a.role, a.is_enabled
+              a.session_version AS curr_ver, a.role, a.is_enabled, a.must_change_password
        FROM admin_sessions s
        JOIN admins a ON a.id = s.admin_id
        WHERE s.token_hash = ?
@@ -52,6 +52,11 @@ async function requireAuth(req, res, next) {
       return res.status(401).json({ ok: false, message: 'Session invalidated. Please log in again.' });
     }
 
+    const passwordSetupRoute = req.baseUrl === '/api/auth' &&
+      ((req.method === 'GET' && req.path === '/me') || (req.method === 'POST' && req.path === '/change-password'));
+    if (row.must_change_password && !passwordSetupRoute) {
+      return res.status(403).json({ ok: false, code: 'PASSWORD_CHANGE_REQUIRED', message: 'Change your temporary password before continuing.' });
+    }
     req.adminId   = row.admin_id;
     req.adminRole = row.role;
     next();

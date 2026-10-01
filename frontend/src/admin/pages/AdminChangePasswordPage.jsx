@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext.jsx';
 import { KeyRound, ShieldAlert, CheckCircle, ArrowRight, AlertCircle } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function AdminChangePasswordPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user && user.role !== 'SUPER_ADMIN') {
+    if (user && user.role !== 'SUPER_ADMIN' && !user.must_change_password) {
       navigate('/admin/camp', { replace: true });
     }
   }, [user, navigate]);
@@ -24,8 +24,8 @@ export default function AdminChangePasswordPage() {
     e.preventDefault();
     setError('');
 
-    if (!newPassword || newPassword.length < 8) {
-      setError('New password must be at least 8 characters long.');
+    if (!newPassword || newPassword.length < 12 || new TextEncoder().encode(newPassword).length > 72) {
+      setError('Password must contain at least 12 characters and at most 72 UTF-8 bytes.');
       return;
     }
 
@@ -103,7 +103,7 @@ export default function AdminChangePasswordPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">
-                New Password (min 8 characters)
+                New Password (min 12 characters)
               </label>
               <input
                 type="password"

@@ -3,15 +3,17 @@ const express  = require('express');
 const bcrypt   = require('bcrypt');
 const crypto   = require('crypto');
 const { pool } = require('../db');
+const { passwordError } = require('../security');
+const { rateLimit, ipKey, emailKey } = require('../middleware/rateLimit');
 
 const router = express.Router();
 const SESSION_TTL_HOURS = 8;
 
 // ─── POST /api/auth/login ─────────────────────────────────────────────────────
-router.post('/login', async (req, res, next) => {
+router.post('/login', rateLimit({ max: 200, key: ipKey }), rateLimit({ max: 15, key: emailKey }), async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
+    if (typeof email !== 'string' || !email.trim() || email.length > 254 || typeof password !== 'string' || !password || password.length > 1024) {
       return res.status(400).json({ ok: false, message: 'Email and password are required.' });
     }
 
@@ -103,7 +105,7 @@ router.get('/me', require('../middleware/requireAuth'), async (req, res, next) =
 });
 
 // ─── POST /api/auth/change-password ──────────────────────────────────────────
-router.post('/change-password', require('../middleware/requireAuth'), async (req, res, next) => {
+router.post('/change-password', require('../middleware/requireAuth'), rateLimit({ max: 10, key: req => req.adminId }), async (req, res, next) => {
   try {
     // Only Super Admins may change their own password via this route.
     // Regular Admins must contact a Super Admin for a password reset.
@@ -117,7 +119,7 @@ router.post('/change-password', require('../middleware/requireAuth'), async (req
 
     // Only Super Admins may change their password via this route.
     // Regular Admins must contact a Super Admin for a password reset.
-    if (adminRow.role !== 'SUPER_ADMIN') {
+    if (adminRow.role !== 'SUPER_ADMIN' && !adminRow.must_change_password) {
       return res.status(403).json({
         ok: false,
         message: 'Regular administrators cannot change their password. Please contact a Super Admin to reset your password.'
@@ -125,12 +127,14 @@ router.post('/change-password', require('../middleware/requireAuth'), async (req
     }
 
     const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword || newPassword.length < 8) {
-      return res.status(400).json({ ok: false, message: 'New password must be at least 8 characters.' });
+    const policyError = passwordError(newPassword);
+    if (typeof currentPassword !== 'string' || !currentPassword || currentPassword.length > 1024 || policyError) {
+      return res.status(400).json({ ok: false, message: policyError || 'Current password is required.' });
     }
 
     const valid = await bcrypt.compare(currentPassword, adminRow.password_hash);
     if (!valid) return res.status(401).json({ ok: false, message: 'Current password is incorrect.' });
+    if (await bcrypt.compare(newPassword, adminRow.password_hash)) return res.status(400).json({ ok: false, message: 'Choose a password different from your current password.' });
 
     const newHash = await bcrypt.hash(newPassword, 12);
 

@@ -6,9 +6,14 @@ const cors       = require('cors');
 const helmet     = require('helmet');
 const path       = require('path');
 const { testConnection } = require('./db');
+const { errorHandler } = require('./security');
 
 const app  = express();
 const PORT = Number(process.env.PORT) || 4000;
+// Only trust the actual reverse proxy addresses, never arbitrary forwarded headers.
+if (process.env.TRUSTED_PROXY_CIDRS) {
+  app.set('trust proxy', process.env.TRUSTED_PROXY_CIDRS.split(',').map(value => value.trim()).filter(Boolean));
+}
 
 // ─── Security & Parsing ───────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
@@ -76,10 +81,7 @@ app.use((_req, res) => {
 
 // ─── Error handler ───────────────────────────────────────────────────────────
 // eslint-disable-next-line no-unused-vars
-app.use((err, _req, res, _next) => {
-  console.error('[error]', err);
-  res.status(err.status || 500).json({ ok: false, message: err.message || 'Internal server error' });
-});
+app.use(errorHandler);
 
 console.log("CWD:", process.cwd(), "| DB_HOST:", process.env.DB_HOST, "| DB_PORT:", process.env.DB_PORT);
 

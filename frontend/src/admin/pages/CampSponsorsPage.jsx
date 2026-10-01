@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext.jsx';
 import { useAdminCamp } from '../context/AdminCampContext.jsx';
 import { adminService } from '../services/adminService.js';
+import { escapeHtml } from '../../utils/validation.js';
 import {
   Building2,
   Heart,
@@ -96,7 +97,7 @@ export default function CampSponsorsPage() {
 
     if (hasSponsors && otherSections.length > 0) {
       const result = await Swal.fire({
-        title: `Delete Section "${section.heading}"?`,
+        titleText: `Delete Section "${section.heading}"?`,
         html: `<p class="text-xs text-slate-600 mb-2">This section has <b>${section.sponsors.length}</b> sponsor(s). Would you like to reassign them to another section or delete them with the section?</p>`,
         icon: 'warning',
         showDenyButton: true,
@@ -110,19 +111,11 @@ export default function CampSponsorsPage() {
 
       if (result.isConfirmed) {
         // Reassign
-        const optionsHtml = otherSections.map(s => `<option value="${s.id}">${s.heading}</option>`).join('');
         const { value: targetSectionId } = await Swal.fire({
           title: 'Select Target Section',
-          html: `
-            <p class="text-xs text-slate-500 mb-3">Move all ${section.sponsors.length} sponsors into:</p>
-            <select id="swal-target-section" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs">
-              ${optionsHtml}
-            </select>
-          `,
-          preConfirm: () => {
-            const el = document.getElementById('swal-target-section');
-            return el ? el.value : null;
-          },
+          text: `Move all ${section.sponsors.length} sponsors into:`,
+          input: 'select',
+          inputOptions: Object.fromEntries(otherSections.map(s => [String(s.id), escapeHtml(s.heading)])),
           showCancelButton: true,
           confirmButtonColor: '#981B24',
           confirmButtonText: 'Reassign & Delete'
@@ -151,7 +144,7 @@ export default function CampSponsorsPage() {
       }
     } else {
       const confirm = await Swal.fire({
-        title: `Delete Section "${section.heading}"?`,
+        titleText: `Delete Section "${section.heading}"?`,
         text: hasSponsors ? 'All sponsors in this section will also be removed.' : 'This empty section will be removed.',
         icon: 'warning',
         showCancelButton: true,
