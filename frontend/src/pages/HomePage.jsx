@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, User, Calendar, MapPin, Droplet, RefreshCw, Bell } from 'lucide-react';
-import PhotoCarousel from '../components/home/PhotoCarousel.jsx';
+import HeroPhotoCarousel from '../components/home/HeroPhotoCarousel.jsx';
 import LeadershipSection from '../components/home/LeadershipSection.jsx';
 import GalleryCarousel from '../components/home/GalleryCarousel.jsx';
 import PartnersLogoStrip from '../components/home/PartnersLogoStrip.jsx';
@@ -421,7 +421,7 @@ export default function HomePage({
               </div>
             </div>
           </div>
-          <PhotoCarousel slides={effectiveSlides} label="Hero" priority />
+          <HeroPhotoCarousel slides={effectiveSlides} priority />
         </div>
 
         {/* Current Camp Banner Card */}
@@ -619,7 +619,7 @@ export default function HomePage({
             </Link>
           </div>
 
-          <PhotoCarousel slides={aboutPhotos} label="About BDC" />
+          <HeroPhotoCarousel slides={aboutPhotos} label="About BDC photos" aspectClass="aspect-video" />
         </section>
       </div>
 
