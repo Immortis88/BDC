@@ -164,6 +164,12 @@ export const adminService = {
 
   // ── Team Workspace ──────────────────────────────────────────────────────────
   team: {
+    updateSection: async (campId, key, payload) => {
+      return request(`/api/camps/${campId}/team/sections/${key}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload)
+      });
+    },
     getByCamp: async (campId) => {
       return request(`/api/camps/${campId}/team`);
     },

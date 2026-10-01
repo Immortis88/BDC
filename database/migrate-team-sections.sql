@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS team_sections (
+  camp_id BIGINT UNSIGNED NOT NULL,
+  group_key ENUM('CHIEF_COORDINATOR', 'MEMBERS', 'STUDENT_COORDINATORS') NOT NULL,
+  heading VARCHAR(150) NOT NULL,
+  description TEXT NOT NULL,
+  PRIMARY KEY (camp_id, group_key),
+  CONSTRAINT fk_team_sections_camp FOREIGN KEY (camp_id) REFERENCES camps(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

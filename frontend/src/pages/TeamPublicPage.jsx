@@ -152,9 +152,9 @@ export default function TeamPublicPage() {
             {/* Chief Coordinator */}
             {chiefCoordinators.length > 0 && (
               <section className="py-12 text-center">
-                <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">Chief Coordinator</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">{data?.sections?.find(section => section.key === 'CHIEF_COORDINATOR')?.label ?? 'Chief Coordinator'}</h2>
                 <p className="text-sm text-[#68717D] mb-10 max-w-xl mx-auto">
-                  Lead. Organise. Inspire. Driving the vision of BDC with dedication and compassion.
+                  {data?.sections?.find(section => section.key === 'CHIEF_COORDINATOR')?.desc ?? 'Lead. Organise. Inspire. Driving the vision of BDC with dedication and compassion.'}
                 </p>
                 <TeamGroupGrid
                   people={chiefCoordinators}
@@ -168,9 +168,9 @@ export default function TeamPublicPage() {
             {members.length > 0 && (
               <section className="py-12 px-6 sm:px-8 lg:px-10 bg-[#FDF3EF] rounded-3xl my-8">
                 <div className="text-center mb-10">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">Members</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">{data?.sections?.find(section => section.key === 'MEMBERS')?.label ?? 'Members'}</h2>
                   <p className="text-sm text-[#68717D] max-w-xl mx-auto">
-                    The core team working behind the scenes to make every camp a success.
+                    {data?.sections?.find(section => section.key === 'MEMBERS')?.desc ?? 'The core team working behind the scenes to make every camp a success.'}
                   </p>
                 </div>
                 <TeamGroupGrid
@@ -184,9 +184,9 @@ export default function TeamPublicPage() {
             {studentCoordinators.length > 0 && (
               <section className="py-12">
                 <div className="text-center mb-10">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">Student Coordinators</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[#102B46] mb-2">{data?.sections?.find(section => section.key === 'STUDENT_COORDINATORS')?.label ?? 'Student Coordinators'}</h2>
                   <p className="text-sm text-[#68717D] max-w-xl mx-auto">
-                    Student leaders who help in organising, coordinating and managing the ground activities.
+                    {data?.sections?.find(section => section.key === 'STUDENT_COORDINATORS')?.desc ?? 'Student leaders who help in organising, coordinating and managing the ground activities.'}
                   </p>
                 </div>
                 <TeamGroupGrid

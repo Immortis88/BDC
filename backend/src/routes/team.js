@@ -2,6 +2,7 @@
 const express     = require('express');
 const { pool }    = require('../db');
 const requireAuth = require('../middleware/requireAuth');
+const { getTeamSections, validateSection } = require('../teamSections');
 
 const router = express.Router({ mergeParams: true });
 router.use(requireAuth);
@@ -68,10 +69,31 @@ router.get('/:campId/team', async (req, res, next) => {
       sort_order: r.sort_order
     }));
 
-    return res.json({ ok: true, success: true, data: formatted });
+    const sections = await getTeamSections(pool, campId);
+    return res.json({ ok: true, success: true, data: formatted, sections });
   } catch (err) {
     next(err);
   }
+});
+
+router.patch('/:campId/team/sections/:key', async (req, res, next) => {
+  try {
+    const campId = Number(req.params.campId);
+    if (!Number.isSafeInteger(campId) || campId <= 0) return res.status(400).json({ ok: false, message: 'Valid numeric campId is required.' });
+    if (!(await verifyCampAccess(req, res, campId))) return;
+    const error = validateSection(req.params.key, req.body || {});
+    if (error) return res.status(400).json({ ok: false, message: error });
+    const [[camp]] = await pool.query('SELECT id FROM camps WHERE id = ?', [campId]);
+    if (!camp) return res.status(404).json({ ok: false, message: 'Camp not found.' });
+    const heading = req.body.heading.trim();
+    const description = req.body.description.trim();
+    await pool.query(
+      `INSERT INTO team_sections (camp_id, group_key, heading, description) VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE heading = VALUES(heading), description = VALUES(description)`,
+      [campId, req.params.key, heading, description]
+    );
+    return res.json({ ok: true, success: true, data: { key: req.params.key, label: heading, desc: description } });
+  } catch (err) { next(err); }
 });
 
 // ─── POST /api/camps/:campId/team ────────────────────────────────────────────

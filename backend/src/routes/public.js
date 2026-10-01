@@ -177,6 +177,7 @@ router.get('/team', async (req, res, next) => {
       ok: true,
       success: true,
       data: {
+        sections: await require('../teamSections').getTeamSections(pool, liveCampId),
         chiefCoordinators,
         members,
         studentCoordinators,

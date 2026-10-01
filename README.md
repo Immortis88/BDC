@@ -26,6 +26,13 @@ A full-stack platform for the **Swami Keshvanand Institute of Technology (SKIT) 
    ```
 
 ### Step 2: Backend Server
+For an existing database, enable editable team section headings and descriptions once:
+```bash
+cd backend
+node scripts/migrate_team_sections.js
+```
+New databases include this table in `database/bdc-schema.sql`. Team section edits are saved per camp and appear on the public Team page for the live camp.
+
 ```bash
 cd backend
 npm install

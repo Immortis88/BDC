@@ -51,6 +51,11 @@ export default function CampTeamPage() {
   const campYear = selectedCamp?.camp_year || effectiveCampId || 2026;
 
   const [members, setMembers] = useState([]);
+  const [sections, setSections] = useState(SECTIONS);
+  const [modalSection, setModalSection] = useState(null);
+  const [savingSection, setSavingSection] = useState(false);
+  const [sectionError, setSectionError] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [loading, setLoading] = useState(true);
   const [cardsPerRow, setCardsPerRow] = useState(5);
   const [saving, setSaving] = useState(false);
@@ -62,19 +67,47 @@ export default function CampTeamPage() {
   const loadTeam = async () => {
     const version = ++loadVersion.current;
     setLoading(true);
+    setLoadError('');
     try {
       const res = await adminService.team.getByCamp(effectiveCampId);
+      if (!res.success) throw new Error(res.message || 'Could not load team sections.');
       if (res.success && version === loadVersion.current && currentCamp.current === effectiveCampId) {
         setMembers(res.data);
+        setSections(res.sections || SECTIONS);
       }
+    } catch (error) {
+      if (version === loadVersion.current && currentCamp.current === effectiveCampId) setLoadError(error.message);
     } finally {
       if (version === loadVersion.current && currentCamp.current === effectiveCampId) setLoading(false);
     }
   };
 
   useEffect(() => {
+    setModalSection(null);
     loadTeam();
   }, [effectiveCampId]);
+
+  const handleSaveSection = async (event) => {
+    event.preventDefault();
+    if (savingSection || !modalSection?.label.trim()) return;
+    const campId = effectiveCampId;
+    setSavingSection(true);
+    setSectionError('');
+    try {
+      const res = await adminService.team.updateSection(campId, modalSection.key, {
+        heading: modalSection.label.trim(), description: modalSection.desc.trim()
+      });
+      if (!res.success) throw new Error(res.message || 'Could not save section.');
+      if (currentCamp.current !== campId) return;
+      setSections(current => current.map(section => section.key === res.data.key ? res.data : section));
+      setModalSection(null);
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Section saved.', showConfirmButton: false, timer: 1500 });
+    } catch (error) {
+      if (currentCamp.current === campId) setSectionError(error.message || 'Please try again.');
+    } finally {
+      setSavingSection(false);
+    }
+  };
 
   const handleDeleteMember = async (id) => {
     const confirm = await Swal.fire({
@@ -137,6 +170,8 @@ export default function CampTeamPage() {
   if (loading) {
     return <LoadingState message="Loading Team Roster..." />;
   }
+
+  if (loadError) return <div role="alert" className="p-6 text-sm text-red-700"><p>{loadError}</p><button type="button" onClick={loadTeam} className="mt-3 underline">Try again</button></div>;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto font-sans pb-12">
@@ -207,16 +242,25 @@ export default function CampTeamPage() {
       </div>
 
       {/* Sections rendering matching the 4 public website tiers */}
-      {SECTIONS.map((sec) => {
+      {sections.map((sec) => {
         const groupMembers = members.filter(m => m.group_key === sec.key);
 
         return (
           <div key={sec.key} className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-2">
               <div>
+                <div className="flex items-center gap-2">
                 <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
                   {sec.label} ({groupMembers.length})
                 </h2>
+                {hasPermission('camp.team', effectiveCampId) && (
+                  <button type="button" title="Edit Section Details" aria-label={`Edit ${sec.label} section`}
+                    onClick={() => { setSectionError(''); setModalSection({ ...sec }); }}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer shrink-0">
+                    <Edit2 className="w-3 h-3" />
+                  </button>
+                )}
+                </div>
                 <p className="text-xs text-slate-400 mt-0.5">
                   {sec.desc}
                 </p>
@@ -320,6 +364,37 @@ export default function CampTeamPage() {
         );
       })}
 
+      {modalSection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4"
+          onKeyDown={event => { if (event.key === 'Escape' && !savingSection) setModalSection(null); }}>
+          <div role="dialog" aria-modal="true" aria-labelledby="team-section-title" className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 id="team-section-title" className="text-base font-bold text-slate-900">Edit Section Details</h3>
+              <button type="button" aria-label="Close section editor" disabled={savingSection} onClick={() => setModalSection(null)} className="p-1 rounded-lg text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+            </div>
+            <form onSubmit={handleSaveSection} className="mt-4 space-y-4 text-xs">
+              <div>
+                <label htmlFor="team-section-heading" className="block font-bold text-slate-700 mb-1">Section Heading *</label>
+                <input id="team-section-heading" autoFocus required maxLength={150} disabled={savingSection} value={modalSection.label}
+                  onChange={event => setModalSection(current => ({ ...current, label: event.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600" />
+              </div>
+              <div>
+                <label htmlFor="team-section-description" className="block font-bold text-slate-700 mb-1">Section Description (Optional)</label>
+                <textarea id="team-section-description" rows={3} maxLength={1000} disabled={savingSection} value={modalSection.desc}
+                  onChange={event => setModalSection(current => ({ ...current, desc: event.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-600/20" />
+              </div>
+              {sectionError && <p role="alert" className="text-red-700">{sectionError}</p>}
+              <div className="pt-4 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" disabled={savingSection} onClick={() => setModalSection(null)} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold">Cancel</button>
+                <button type="submit" disabled={savingSection || !modalSection.label.trim()} className="px-4 py-2 rounded-xl bg-[#B91C1C] hover:bg-[#991B1B] text-white font-semibold disabled:opacity-50">{savingSection ? 'Saving...' : 'Save Section'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Add / Edit Member Modal */}
       {modalMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
@@ -363,7 +438,7 @@ export default function CampTeamPage() {
                   })}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none"
                 >
-                  {SECTIONS.map(s => (
+                  {sections.map(s => (
                     <option key={s.key} value={s.key}>{s.label}</option>
                   ))}
                 </select>
