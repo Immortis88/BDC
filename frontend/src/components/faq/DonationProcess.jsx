@@ -1,14 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './DonationProcess.css';
-
-const steps = [
-  { image: 'donation', title: 'Donation', description: 'Your journey begins with a health check and a blood donation, supported by trained staff.' },
-  { image: 'testing', title: 'Testing', description: 'The collected blood is tested for blood group and screened for infections before it can be used.' },
-  { image: 'separation', title: 'Separation', description: 'Blood is processed to separate it into components, including red blood cells, plasma and platelets.' },
-  { image: 'components', title: 'Components', description: 'Each component has a different purpose and is stored under the conditions it needs.' },
-  { image: 'helping-patients', title: 'Helping Patients', description: 'These components support patients receiving cancer treatment, recovering from injuries, undergoing surgery and more.' },
-  { image: 'new-beginnings', title: 'New Beginnings', description: 'Your donation can help more than one patient and give people another chance at a healthier tomorrow.' },
-];
+import { getDonationProcessContent, PROCESS_IMAGES } from '../../data/donationProcess.js';
 
 // Measure the rendered rows so connectors follow the layout and never set text height.
 function useConnectors(listRef) {
@@ -53,22 +45,23 @@ function useConnectors(listRef) {
   return drawing;
 }
 
-export default function DonationProcess() {
+export default function DonationProcess({ content }) {
+  const text = getDonationProcessContent(content);
   const listRef = useRef(null);
   const drawing = useConnectors(listRef);
   return (
     <section className="donation-process" aria-labelledby="donation-journey-heading" id="donation-journey">
       <header className="donation-process__header">
-        <p className="donation-process__eyebrow">The Process</p>
-        <h2 id="donation-journey-heading">From Your Donation to a <span>New Beginning</span></h2>
-        <p>A simple process. A powerful impact.</p>
+        <p className="donation-process__eyebrow">{text.eyebrow}</p>
+        <h2 id="donation-journey-heading">{text.heading}{text.heading && text.highlightedHeading ? ' ' : ''}<span>{text.highlightedHeading}</span></h2>
+        <p>{text.subtitle}</p>
       </header>
       <div className="donation-process__map">
         <ol ref={listRef} className="donation-process__steps">
-        {steps.map((step, index) => (
-          <li className="donation-process__step" key={step.image}>
-            <img src={`/assets/process/${step.image}.png`} alt="" width="1536" height="1024" loading="lazy" decoding="async" />
-            <h3><span className="donation-process__number">{index + 1}</span>{step.title}</h3>
+        {text.steps.map((step, index) => (
+          <li className="donation-process__step" key={PROCESS_IMAGES[index]}>
+            <img src={`/assets/process/${PROCESS_IMAGES[index]}.png`} alt="" width="1536" height="1024" loading="lazy" decoding="async" />
+            <h3><span className="donation-process__number">{step.badge}</span>{step.title}</h3>
             <p>{step.description}</p>
           </li>
         ))}

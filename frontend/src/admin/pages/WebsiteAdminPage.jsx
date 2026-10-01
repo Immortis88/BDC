@@ -39,6 +39,8 @@ import LoadingState from '../components/LoadingState.jsx';
 import HomePage from '../../pages/HomePage.jsx';
 import AboutPage from '../../pages/AboutPage.jsx';
 import FaqSectionImage, { FAQ_IMAGE_SLOTS } from '../../components/ui/FaqSectionImage.jsx';
+import DonationProcess from '../../components/faq/DonationProcess.jsx';
+import DonationProcessTextEditor from '../components/DonationProcessTextEditor.jsx';
 import { HeroPhotosEditor, LeadershipEditor } from '../components/HomepagePhotoEditors.jsx';
 import ImagePickerModal, { ImagePickerField } from '../components/ImagePickerModal.jsx';
 import GalleryAdminManager from '../components/GalleryAdminManager.jsx';
@@ -2528,6 +2530,7 @@ export default function WebsiteAdminPage() {
               ))}
             </div>
           </div>
+          <DonationProcessTextEditor value={faqForm.process} onChange={process => setFaqForm(previous => ({ ...previous, process }))} />
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 className="text-base font-bold text-slate-900">
@@ -2959,6 +2962,7 @@ export default function WebsiteAdminPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {FAQ_IMAGE_SLOTS.map(slot => <FaqSectionImage key={slot.key} {...slot} image={faqForm.images?.[slot.key]} />)}
                     </div>
+                    <DonationProcess content={faqForm.process} />
                     <div className="bg-white border border-[#F3DEDA] rounded-2xl p-6 shadow-xs space-y-4">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#981B24] mb-2">
                         Frequently Asked Questions ({faqs.filter(f => f.isActive).length} Active)

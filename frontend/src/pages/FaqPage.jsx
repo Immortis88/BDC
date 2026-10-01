@@ -9,6 +9,7 @@ import DonationProcess from '../components/faq/DonationProcess.jsx';
 export default function FaqPage() {
   const location = useLocation();
   const [images, setImages] = useState({});
+  const [processContent, setProcessContent] = useState(null);
   const [generalFaqs, setGeneralFaqs] = useState(() => getFaqsByCategory('general'));
   const [donationFaqs, setDonationFaqs] = useState(() => getFaqsByCategory('donation'));
   
@@ -38,10 +39,13 @@ export default function FaqPage() {
     Promise.all([
       api.faqs.getAll({ category: 'general' }),
       api.faqs.getAll({ category: 'donation' }),
-      api.faqs.getImages()
-    ]).then(([genRes, donRes, imageRes]) => {
+      api.faqs.getPageContent()
+    ]).then(([genRes, donRes, pageRes]) => {
       if (mounted) {
-        if (imageRes?.success) setImages(imageRes.data);
+        if (pageRes?.success) {
+          setImages(pageRes.data.images || {});
+          setProcessContent(pageRes.data.process);
+        }
         if (genRes?.success && genRes.data) setGeneralFaqs(genRes.data);
         if (donRes?.success && donRes.data) setDonationFaqs(donRes.data);
       }
@@ -183,7 +187,7 @@ export default function FaqPage() {
       </section>
 
       <div className="px-4 sm:px-6 md:px-8">
-        <DonationProcess />
+        <DonationProcess content={processContent} />
       </div>
 
       {/* ===== Main FAQ Content Area ===== */}

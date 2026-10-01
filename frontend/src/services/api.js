@@ -149,6 +149,10 @@ export const api = {
   },
 
   faqs: {
+    getPageContent: async () => {
+      const res = await fetchJson('/api/public/site');
+      return { success: res.ok, data: res.data?.cms?.FAQ || {} };
+    },
     getImages: async () => {
       const res = await fetchJson('/api/public/site');
       return { success: res.ok, data: res.data?.cms?.FAQ?.images || {} };

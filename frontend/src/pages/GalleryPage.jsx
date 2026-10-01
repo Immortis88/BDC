@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Image as ImageIcon, Tag } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { Calendar, Image as ImageIcon, Tag, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import ImagePlaceholder from '../components/common/ImagePlaceholder.jsx';
 import HeroWave from '../components/common/HeroWave.jsx';
 import { formatCampDate } from '../utils/dateUtils.js';
@@ -34,13 +35,31 @@ function CategoryPill({ label, active, count, onClick }) {
 
 /* ─── Single photo card ──────────────────────────────────────────────── */
 
-function PhotoCard({ photo }) {
+function PhotoCard({ photo, onOpen}) {
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const src = photo.photoUrl || photo.image_url || photo.photo_url;
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-[#FAF4EB] border border-[#F3DEDA] shadow-2xs group break-inside-avoid mb-4 sm:mb-5">
+        <div
+      className={`relative rounded-2xl overflow-hidden bg-[#FAF4EB] border border-[#F3DEDA] shadow-2xs group break-inside-avoid mb-4 sm:mb-5 ${
+        !hasError && src ? 'cursor-zoom-in' : ''
+      }`}
+      {...(!hasError && src
+        ? {
+            role: 'button',
+            tabIndex: 0,
+            'aria-label': `View photo: ${photo.caption || photo.alt_text || 'BDC Camp Moment'}`,
+            onClick: onOpen,
+            onKeyDown: (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onOpen();
+              }
+            },
+          }
+        : {})}
+    >
       {!hasError && src ? (
         <img
           src={src}
@@ -79,6 +98,117 @@ function PhotoCard({ photo }) {
   );
 }
 
+/* ─── Lightbox ───────────────────────────────────────────────────────── */
+
+function getPhotoSrc(p) {
+  return p.photoUrl || p.image_url || p.photo_url;
+}
+
+function GalleryLightbox({ photos, activeId, onChange, onClose }) {
+  const closeRef = useRef(null);
+  const touchX = useRef(null);
+  const n = photos.length;
+  const index = photos.findIndex((p) => p.id === activeId);
+
+  const step = useCallback(
+    (dir) => {
+      if (n < 2) return;
+      const i = photos.findIndex((p) => p.id === activeId);
+      onChange(photos[(i + dir + n) % n].id);
+    },
+    [photos, activeId, n, onChange]
+  );
+
+  // Lock page scroll, focus the close button, restore focus on close
+  useEffect(() => {
+    const prevFocus = document.activeElement;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      prevFocus?.focus?.();
+    };
+  }, []);
+
+  // Keyboard: Esc, left / right arrows
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, step]);
+
+  if (index === -1) return null;
+  const photo = photos[index];
+  const src = getPhotoSrc(photo);
+
+  return createPortal(
+    <div
+      className="lb-backdrop fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/90 px-3"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo viewer"
+      onClick={onClose}
+      onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => {
+        if (touchX.current == null) return;
+        const dx = e.changedTouches[0].clientX - touchX.current;
+        touchX.current = null;
+        if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+      }}
+    >
+      <button
+        ref={closeRef}
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        aria-label="Close photo viewer"
+        className="absolute top-3 right-3 sm:top-5 sm:right-5 p-2.5 rounded-full bg-white/15 hover:bg-white/30 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {n > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); step(-1); }}
+            aria-label="Previous photo"
+            className="absolute left-2 sm:left-5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/15 hover:bg-white/30 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); step(1); }}
+            aria-label="Next photo"
+            className="absolute right-2 sm:right-5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/15 hover:bg-white/30 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
+      <img
+        key={src}
+        src={src}
+        alt={photo.alt_text || photo.caption || 'BDC Camp Moment'}
+        onClick={(e) => e.stopPropagation()}
+        className="lb-image max-w-[94vw] max-h-[78vh] w-auto h-auto object-contain rounded-lg shadow-2xl select-none"
+        draggable={false}
+      />
+
+      <div className="mt-3 max-w-[90vw] text-center" onClick={(e) => e.stopPropagation()}>
+        {photo.caption && <p className="text-sm text-white/90 leading-snug">{photo.caption}</p>}
+        {n > 1 && <p className="text-xs text-white/60 mt-1">{index + 1} / {n}</p>}
+      </div>
+    </div>,
+    document.body
+  );
+}
 /* ─── Per-album section (no toggle, always fully visible) ───────────── */
 
 function AlbumSection({ album }) {
@@ -118,6 +248,9 @@ function AlbumSection({ album }) {
       : photos.filter(
           (p) => p.category?.toLowerCase() === cat.toLowerCase()
         ).length;
+        
+  const [lightboxId, setLightboxId] = useState(null);
+  const viewable = displayed.filter((p) => getPhotoSrc(p));
 
   return (
     <section className="space-y-6">
@@ -194,7 +327,7 @@ function AlbumSection({ album }) {
       {!loading && (
         <div className="columns-2 sm:columns-3 lg:columns-4 gap-x-4 sm:gap-x-5">
           {displayed.length > 0 ? (
-            displayed.map((p) => <PhotoCard key={p.id} photo={p} />)
+            displayed.map((p) => <PhotoCard key={p.id} photo={p} onOpen={() => setLightboxId(p.id)} />)
           ) : (
             <div className="col-span-full py-14 text-center text-slate-400 text-xs sm:text-sm bg-[#FAF4EB] rounded-2xl border border-[#F3DEDA]">
               {activeCategory === 'All'
@@ -203,6 +336,14 @@ function AlbumSection({ album }) {
             </div>
           )}
         </div>
+      )}
+            {lightboxId !== null && (
+        <GalleryLightbox
+          photos={viewable}
+          activeId={lightboxId}
+          onChange={setLightboxId}
+          onClose={() => setLightboxId(null)}
+        />
       )}
     </section>
   );

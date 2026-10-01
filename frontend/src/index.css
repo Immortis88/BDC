@@ -312,3 +312,42 @@ body {
     overflow: visible;
   }
 }
+
+/* ===== Notice strip marquee ===== */
+.notice-marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+}
+.notice-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: noticeScroll var(--notice-duration, 25s) linear infinite;
+  will-change: transform;
+}
+.notice-marquee:hover .notice-marquee-track,
+.notice-marquee:active .notice-marquee-track {
+  animation-play-state: paused;
+}
+.notice-marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-width: 100vw;
+}
+.notice-marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-right: 3rem;
+}
+@keyframes noticeScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notice-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .notice-marquee-track { animation: none !important; }
+  .notice-marquee-group[aria-hidden="true"] { display: none; }
+}

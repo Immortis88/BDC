@@ -501,11 +501,26 @@ export default function RegisterPage() {
         </div>
 
         {/* Print-only slip — only visible when printing */}
-        <style>{`
+                <style>{`
           @media print {
             @page { size: A5 portrait; margin: 18mm 14mm; }
+            html, body {
+              height: auto !important; min-height: 0 !important;
+              margin: 0 !important; padding: 0 !important;
+              background: #fff !important; overflow: visible !important;
+            }
             body > :not(#print-slip) { display: none !important; }
-            #print-slip { display: flex !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            #print-slip {
+              display: flex !important;
+              position: static !important;
+              inset: auto !important;
+              width: 100% !important;
+              height: 172mm !important;
+              overflow: hidden !important;
+              break-inside: avoid !important;
+              page-break-after: avoid !important;
+              print-color-adjust: exact; -webkit-print-color-adjust: exact;
+            }
           }
         `}</style>
         {createPortal(<div
