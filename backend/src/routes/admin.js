@@ -3,6 +3,7 @@ const express     = require('express');
 const bcrypt      = require('bcrypt');
 const { pool }    = require('../db');
 const requireAuth = require('../middleware/requireAuth');
+const { passwordError, generatePassword } = require('../security');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -43,7 +44,9 @@ router.post('/admins', async (req, res, next) => {
       return res.status(400).json({ ok: false, message: 'full_name and email are required.' });
     }
 
-    const initialPassword = temp_password || `SKIT@${Math.floor(100000 + Math.random() * 900000)}`;
+    const initialPassword = temp_password === undefined || temp_password === '' ? generatePassword() : temp_password;
+    const policyError = passwordError(initialPassword);
+    if (policyError) return res.status(400).json({ ok: false, message: policyError });
     const hash = await bcrypt.hash(initialPassword, 12);
     const assignedRole = role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'REGULAR_ADMIN';
 
@@ -51,7 +54,7 @@ router.post('/admins', async (req, res, next) => {
     try {
       await conn.beginTransaction();
 
-      const mustChange = assignedRole === 'SUPER_ADMIN';
+      const mustChange = true;
       const [result] = await conn.query(
         'INSERT INTO admins (full_name, email, password_hash, role, must_change_password) VALUES (?,?,?,?,?)',
         [full_name.trim(), email.toLowerCase().trim(), hash, assignedRole, mustChange]
@@ -185,9 +188,11 @@ router.post('/admins/:id/reset-password', async (req, res, next) => {
 
     const { new_password } = req.body;
 
-    const tempPassword = new_password || `SKIT@${Math.floor(100000 + Math.random() * 900000)}`;
+    const tempPassword = new_password === undefined || new_password === '' ? generatePassword() : new_password;
+    const policyError = passwordError(tempPassword);
+    if (policyError) return res.status(400).json({ ok: false, message: policyError });
     const hash = await bcrypt.hash(tempPassword, 12);
-    const mustChange = target.role === 'SUPER_ADMIN';
+    const mustChange = true;
 
     await pool.query(
       'UPDATE admins SET password_hash = ?, must_change_password = ?, session_version = session_version + 1 WHERE id = ? AND deleted_at IS NULL',

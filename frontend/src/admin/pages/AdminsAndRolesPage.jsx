@@ -217,8 +217,8 @@ export default function AdminsAndRolesPage() {
   const handleResetPasswordSubmit = async (e) => {
     e.preventDefault();
     if (!resetModalAdmin) return;
-    if (!newPasswordInput || newPasswordInput.length < 8) {
-      Swal.fire({ icon: 'warning', title: 'Weak Password', text: 'Password must be at least 8 characters long.' });
+    if (!newPasswordInput || newPasswordInput.length < 12 || new TextEncoder().encode(newPasswordInput).length > 72) {
+      Swal.fire({ icon: 'warning', title: 'Weak Password', text: 'Password must contain at least 12 characters and at most 72 UTF-8 bytes.' });
       return;
     }
 

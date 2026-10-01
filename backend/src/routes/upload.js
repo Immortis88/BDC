@@ -226,7 +226,7 @@ router.post('/', upload.single('file'), async (req, res, next) => {
         ok: false,
         message: isConfigError
           ? `Storage error: target directory '${targetFolder}' is not accessible (${fsErr.code}). Please verify storage provisioning.`
-          : `Storage write failure: ${fsErr.message}`
+          : 'Unable to save this image. Please try again later.'
       });
     }
 

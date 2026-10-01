@@ -28,7 +28,7 @@ function generateSubmissionKey() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  return `${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+  return Array.from(crypto.getRandomValues(new Uint8Array(24)), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export default function RegisterPage() {
@@ -210,7 +210,7 @@ export default function RegisterPage() {
     }
 
     const cleanMobile = (formData.mobile || '').replace(/\D/g, '');
-    if (cleanMobile.length < 10) {
+    if (!/^\d{10}$/.test(cleanMobile)) {
       errs.mobile = 'Please enter a valid 10-digit mobile number.';
     }
 

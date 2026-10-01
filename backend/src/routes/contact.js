@@ -3,14 +3,18 @@ const express     = require('express');
 const crypto      = require('crypto');
 const { pool }    = require('../db');
 const requireAuth = require('../middleware/requireAuth');
+const { textError } = require('../security');
+const { rateLimit, ipKey, emailKey } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
 const isSuperAdmin = (req) => req.adminRole === 'SUPER_ADMIN';
 
 // ─── POST /api/contact ── PUBLIC contact form submission ─────────────────────
-router.post('/contact', async (req, res, next) => {
+router.post('/contact', rateLimit({ max: 100, key: ipKey }), rateLimit({ max: 5, key: emailKey }), async (req, res, next) => {
   try {
+    const validationError = textError(req.body, [['fullName', 2, 160], ['email', 3, 254], ['phone', 0, 20], ['subject', 3, 200], ['message', 10, 5000]]);
+    if (validationError) return res.status(400).json({ ok: false, message: validationError });
     const { fullName, email, phone, subject, message } = req.body;
 
     if (!fullName || fullName.trim().length < 2) {

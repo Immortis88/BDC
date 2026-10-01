@@ -25,8 +25,8 @@ export default function AdminSettingsModal({ isOpen, onClose }) {
       return;
     }
 
-    if (!newPassword || newPassword.length < 8) {
-      setError('New password must be at least 8 characters long.');
+    if (!newPassword || newPassword.length < 12 || new TextEncoder().encode(newPassword).length > 72) {
+      setError('Password must contain at least 12 characters and at most 72 UTF-8 bytes.');
       return;
     }
 
@@ -159,7 +159,7 @@ export default function AdminSettingsModal({ isOpen, onClose }) {
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">New Password (min 8 characters)</label>
+                  <label className="block text-slate-700 font-semibold mb-1">New Password (min 12 characters)</label>
                   <input
                     type="password"
                     value={newPassword}

@@ -5,6 +5,8 @@ const { pool }    = require('../db');
 const requireAuth = require('../middleware/requireAuth');
 const { birthDateError } = require('../utils/registrationAge');
 const { createRegistrationWorkbook } = require('../utils/registrationWorkbook');
+const { registrationError } = require('../security');
+const { rateLimit, ipKey, emailKey } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
@@ -22,8 +24,10 @@ function computeFingerprint(name, mobile, email) {
 }
 
 // ─── POST /api/registrations ── PUBLIC registration submission ────────────────
-router.post('/', async (req, res, next) => {
+router.post('/', rateLimit({ max: 600, key: ipKey }), rateLimit({ max: 8, key: emailKey }), async (req, res, next) => {
   try {
+    const validationError = registrationError(req.body);
+    if (validationError) return res.status(400).json({ ok: false, message: validationError });
     const {
       camp_id,
       full_name,
@@ -110,7 +114,18 @@ router.post('/', async (req, res, next) => {
       [targetCampId, fingerprint]
     );
 
-    if (existing) {
+    async function duplicateResponse(existing, db = pool) {
+      // Only the original high-entropy submission key can recover a receipt.
+      const attemptHash = crypto.createHash('sha256').update(submission_key || '').digest();
+      const [[attempt]] = submission_key ? await db.query(
+        `SELECT id FROM registration_attempts WHERE attempt_key_hash = ? AND registration_id = ?
+         AND camp_id = ? AND state = 'SUCCEEDED' AND expires_at > NOW(6)`,
+        [attemptHash, existing.id, targetCampId]
+      ) : [[]];
+      if (!attempt) return res.status(409).json({
+        ok: false, success: false,
+        message: 'Unable to complete online registration with these details. Please contact the camp coordinator for assistance.'
+      });
       return res.json({
         ok: true,
         success: true,
@@ -127,6 +142,7 @@ router.post('/', async (req, res, next) => {
         }
       });
     }
+    if (existing) return await duplicateResponse(existing);
 
     // Atomic insert and sequence allocation
     const conn = await pool.getConnection();
@@ -138,6 +154,16 @@ router.post('/', async (req, res, next) => {
         'SELECT next_sequence FROM registration_counters WHERE camp_id = ? FOR UPDATE',
         [targetCampId]
       );
+      // Serialize duplicate checks with sequence allocation, including simultaneous submissions.
+      const [[racedDuplicate]] = await conn.query(
+        'SELECT id, registration_code, full_name, created_at FROM registrations WHERE camp_id = ? AND duplicate_fingerprint = ? FOR UPDATE',
+        [targetCampId, fingerprint]
+      );
+      if (racedDuplicate) {
+        await conn.rollback();
+        return await duplicateResponse(racedDuplicate, conn);
+      }
+      if (!counterRow) throw new Error('Registration counter is not configured.');
       const seq = counterRow ? counterRow.next_sequence : 1;
       await conn.query('UPDATE registration_counters SET next_sequence = next_sequence + 1 WHERE camp_id = ?', [targetCampId]);
 
