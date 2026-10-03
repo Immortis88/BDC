@@ -254,9 +254,18 @@ router.use(async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-function normalizeRegistrationFilters(query, targetCampId) {
+function normalizeRegistrationFilters(query, targetCampId, includeInstitutionalIds = false) {
   const conditions = ['r.camp_id = ?'];
   const params = [targetCampId];
+
+  if (includeInstitutionalIds) {
+    for (const field of ['college_id', 'employee_id']) {
+      if (typeof query[field] === 'string' && query[field].trim()) {
+        conditions.push(`LOWER(r.${field}) LIKE LOWER(?)`);
+        params.push(`%${query[field].trim()}%`);
+      }
+    }
+  }
 
   // 1. Name search: case-insensitive partial match, trim surrounding whitespace
   if (typeof query.name === 'string' && query.name.trim()) {
@@ -357,7 +366,7 @@ router.get('/', async (req, res, next) => {
     const targetCampId = await resolveAndVerifyCamp(req, res);
     if (!targetCampId) return;
 
-    const filterResult = normalizeRegistrationFilters(req.query, targetCampId);
+    const filterResult = normalizeRegistrationFilters(req.query, targetCampId, true);
     if (filterResult.error) {
       return res.status(400).json({ ok: false, message: filterResult.error });
     }

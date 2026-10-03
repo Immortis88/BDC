@@ -393,6 +393,8 @@ export const adminService = {
       const query = new URLSearchParams({ camp_id: campId });
       if (filters.search) query.set('search', filters.search);
       if (filters.name) query.set('name', filters.name);
+      if (filters.collegeId) query.set('college_id', filters.collegeId);
+      if (filters.employeeId) query.set('employee_id', filters.employeeId);
       if (filters.regId) query.set('reg_id', filters.regId);
       if (filters.blood && filters.blood !== 'ALL') query.set('blood_group', filters.blood);
       if (filters.role && filters.role !== 'ALL') query.set('role', filters.role);

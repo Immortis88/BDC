@@ -186,6 +186,9 @@ export default function CampRegistrationsPage() {
 
   // Input states (immediate text inputs)
   const [nameInput, setNameInput] = useState('');
+  const [collegeIdInput, setCollegeIdInput] = useState('');
+  const [employeeIdInput, setEmployeeIdInput] = useState('');
+  const [debouncedIds, setDebouncedIds] = useState({ collegeId: '', employeeId: '' });
   const [codeSuffix, setCodeSuffix] = useState('');
   const [codeValidationError, setCodeValidationError] = useState('');
 
@@ -209,6 +212,13 @@ export default function CampRegistrationsPage() {
   const canExport = isSuperAdmin;
 
   // Debounce Name input by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedIds({ collegeId: collegeIdInput.trim(), employeeId: employeeIdInput.trim() });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [collegeIdInput, employeeIdInput]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedName(nameInput);
@@ -290,6 +300,9 @@ export default function CampRegistrationsPage() {
       setCodeSuffix('');
       setDebouncedCodeSuffix('');
       setNameInput('');
+      setCollegeIdInput('');
+      setEmployeeIdInput('');
+      setDebouncedIds({ collegeId: '', employeeId: '' });
       setDebouncedName('');
       setBlood('');
       setRole('');
@@ -337,6 +350,8 @@ export default function CampRegistrationsPage() {
     try {
       const res = await adminService.registrations.getByCamp(requestCampId, {
         name: (filterValues.name || '').trim(),
+        collegeId: filterValues.collegeId,
+        employeeId: filterValues.employeeId,
         regId: regIdParam,
         blood: filterValues.blood,
         role: filterValues.role,
@@ -383,6 +398,7 @@ export default function CampRegistrationsPage() {
 
   // Combined active filters memo
   const activeFilters = useMemo(() => ({
+    ...debouncedIds,
     name: debouncedName,
     codeSuffix: debouncedCodeSuffix,
     blood,
@@ -391,7 +407,7 @@ export default function CampRegistrationsPage() {
     donorStatus,
     dateFrom,
     dateTo
-  }), [debouncedName, debouncedCodeSuffix, blood, role, branch, donorStatus, dateFrom, dateTo]);
+  }), [debouncedIds, debouncedName, debouncedCodeSuffix, blood, role, branch, donorStatus, dateFrom, dateTo]);
 
   // Automatic filter trigger: reset to page 1 on filter changes
   useEffect(() => {
@@ -403,6 +419,9 @@ export default function CampRegistrationsPage() {
 
   // Clear filters: reset all filters, page 1, immediately reload
   const handleClearFilters = () => {
+    setCollegeIdInput('');
+    setEmployeeIdInput('');
+    setDebouncedIds({ collegeId: '', employeeId: '' });
     setNameInput('');
     setCodeSuffix('');
     setDebouncedName('');
@@ -665,7 +684,29 @@ export default function CampRegistrationsPage() {
 
       {/* Filter Bar - Always Mounted, Focused, and Editable */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
+          <div>
+            <label htmlFor="registration-college-id" className="block font-bold text-slate-500 uppercase text-[10px] mb-1">COLLEGE ID</label>
+            <input
+              id="registration-college-id"
+              type="text"
+              placeholder="Search College ID"
+              value={collegeIdInput}
+              onChange={(e) => setCollegeIdInput(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-red-600"
+            />
+          </div>
+          <div>
+            <label htmlFor="registration-employee-id" className="block font-bold text-slate-500 uppercase text-[10px] mb-1">EMPLOYEE ID</label>
+            <input
+              id="registration-employee-id"
+              type="text"
+              placeholder="Search Employee ID"
+              value={employeeIdInput}
+              onChange={(e) => setEmployeeIdInput(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-red-600"
+            />
+          </div>
           <div>
             <label className="block font-bold text-slate-500 uppercase text-[10px] mb-1">DATE FROM</label>
             <input
