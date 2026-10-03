@@ -159,7 +159,7 @@ export default function RegisterPage() {
           updated.branch = prev.branch || BRANCHES[0];
           updated.institutional_id = '';
         } else if (value === ROLES.STUDENT) {
-          updated.branch = prev.branch || BRANCHES[0];
+          updated.branch = BRANCHES.includes(prev.branch) ? prev.branch : BRANCHES[0];
           updated.institutional_id = '';
         }
       }
@@ -852,6 +852,7 @@ export default function RegisterPage() {
                   {BRANCHES.map(b => (
                     <option key={b} value={b}>{b}</option>
                   ))}
+                  {formData.role === ROLES.STAFF_MEMBER && <option value="BSH">BSH</option>}
                 </select>
                 {errors.branch && (
                   <p className="mt-1 text-xs text-red-600">{errors.branch}</p>

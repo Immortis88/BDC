@@ -788,6 +788,7 @@ export default function CampRegistrationsPage() {
               <option value="Civil Engineering">Civil Engineering</option>
               <option value="Mechanical Engineering">Mechanical Engineering</option>
               <option value="Electrical Engineering">Electrical Engineering</option>
+              <option value="BSH">BSH</option>
             </select>
           </div>
 
